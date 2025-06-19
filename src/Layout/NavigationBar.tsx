@@ -53,7 +53,11 @@ export default function BottomNavBar() {
         <TouchableOpacity
           key={tab.label}
           style={styles.tab}
-          onPress={() => router.push(tab.path as Href)}
+          onPress={() => {
+            if (pathname !== tab.path) {
+              router.push(tab.path as Href);
+            }
+          }}
         >
           <View
             style={[
