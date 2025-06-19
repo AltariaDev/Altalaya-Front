@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { colors } from "../utils/theme";
 
 const USER = {
   name: "Alex Johnson",
@@ -52,7 +53,7 @@ export default function EditProfileScreen() {
           onPress={() => router.back()}
           style={styles.backButton}
         >
-          <Ionicons name="arrow-back" size={24} color="#fff" />
+          <Ionicons name="arrow-back" size={24} color={colors.text.primary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Editar Perfil</Text>
         <TouchableOpacity onPress={handleSave} style={styles.saveButton}>
@@ -65,7 +66,7 @@ export default function EditProfileScreen() {
           <TouchableOpacity onPress={pickImage} style={styles.avatarContainer}>
             <Image source={{ uri: avatar }} style={styles.avatar} />
             <View style={styles.editAvatarButton}>
-              <Ionicons name="camera" size={20} color="#fff" />
+              <Ionicons name="camera" size={20} color={colors.text.primary} />
             </View>
           </TouchableOpacity>
 
@@ -76,7 +77,7 @@ export default function EditProfileScreen() {
                 style={styles.input}
                 value={name}
                 onChangeText={setName}
-                placeholderTextColor="#7a8a99"
+                placeholderTextColor={colors.text.secondary}
               />
             </View>
 
@@ -86,7 +87,7 @@ export default function EditProfileScreen() {
                 style={styles.input}
                 value={username}
                 onChangeText={setUsername}
-                placeholderTextColor="#7a8a99"
+                placeholderTextColor={colors.text.secondary}
               />
             </View>
 
@@ -96,7 +97,7 @@ export default function EditProfileScreen() {
                 style={styles.input}
                 value={email}
                 onChangeText={setEmail}
-                placeholderTextColor="#7a8a99"
+                placeholderTextColor={colors.text.secondary}
                 keyboardType="email-address"
                 autoCapitalize="none"
               />
@@ -108,7 +109,7 @@ export default function EditProfileScreen() {
                 style={[styles.input, styles.bioInput]}
                 value={bio}
                 onChangeText={setBio}
-                placeholderTextColor="#7a8a99"
+                placeholderTextColor={colors.text.secondary}
                 multiline
                 numberOfLines={4}
                 textAlignVertical="top"
@@ -116,7 +117,7 @@ export default function EditProfileScreen() {
             </View>
 
             <TouchableOpacity style={styles.deleteButton}>
-              <Ionicons name="trash-outline" size={20} color="#ff4d4d" />
+              <Ionicons name="trash-outline" size={20} color={colors.error} />
               <Text style={styles.deleteButtonText}>Eliminar cuenta</Text>
             </TouchableOpacity>
           </View>
@@ -129,7 +130,7 @@ export default function EditProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#121417",
+    backgroundColor: colors.background.primary,
   },
   header: {
     flexDirection: "row",
@@ -138,30 +139,30 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#23262A",
+    borderBottomColor: colors.background.secondary,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#23262A",
+    backgroundColor: colors.background.secondary,
     justifyContent: "center",
     alignItems: "center",
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: "700",
-    color: "#fff",
+    color: colors.text.primary,
     letterSpacing: -0.5,
   },
   saveButton: {
-    backgroundColor: "#2d353a",
+    backgroundColor: colors.background.secondary,
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 20,
   },
   saveButtonText: {
-    color: "#fff",
+    color: colors.text.primary,
     fontSize: 16,
     fontWeight: "600",
   },
@@ -186,11 +187,11 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: "#2d353a",
+    backgroundColor: colors.background.secondary,
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 2,
-    borderColor: "#121417",
+    borderColor: colors.background.primary,
   },
   form: {
     gap: 24,
@@ -199,15 +200,15 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   label: {
-    color: "#fff",
+    color: colors.text.primary,
     fontSize: 16,
     fontWeight: "600",
   },
   input: {
-    backgroundColor: "#23262A",
+    backgroundColor: colors.background.secondary,
     borderRadius: 12,
     padding: 16,
-    color: "#fff",
+    color: colors.text.primary,
     fontSize: 16,
   },
   bioInput: {
@@ -222,11 +223,11 @@ const styles = StyleSheet.create({
     marginTop: 32,
     padding: 16,
     borderWidth: 1,
-    borderColor: "#ff4d4d",
+    borderColor: colors.error,
     borderRadius: 12,
   },
   deleteButtonText: {
-    color: "#ff4d4d",
+    color: colors.error,
     fontSize: 16,
     fontWeight: "600",
   },

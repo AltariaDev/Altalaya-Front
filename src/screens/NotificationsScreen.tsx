@@ -1,4 +1,3 @@
-import { NOTIFICATIONS } from "@/data/Notification";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
@@ -9,17 +8,25 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { NOTIFICATIONS } from "../../data/Notification";
+import { colors } from "../utils/theme";
 
 const getNotificationIcon = (type: string) => {
   switch (type) {
     case "like":
-      return <Ionicons name="heart" size={20} color="#ff4d4d" />;
+      return <Ionicons name="heart" size={20} color={colors.error} />;
     case "comment":
-      return <Ionicons name="chatbubble" size={20} color="#4d79ff" />;
+      return <Ionicons name="chatbubble" size={20} color={colors.info} />;
     case "follow":
-      return <Ionicons name="person-add" size={20} color="#4dff4d" />;
+      return <Ionicons name="person-add" size={20} color={colors.success} />;
     default:
-      return null;
+      return (
+        <Ionicons
+          name="notifications"
+          size={20}
+          color={colors.text.secondary}
+        />
+      );
   }
 };
 
@@ -84,7 +91,7 @@ export default function NotificationsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#121417",
+    backgroundColor: colors.background.primary,
   },
   header: {
     flexDirection: "row",
@@ -93,22 +100,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#23262A",
+    borderBottomColor: colors.background.secondary,
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: "700",
-    color: "#fff",
+    color: colors.text.primary,
     letterSpacing: -0.5,
   },
   markAllButton: {
-    backgroundColor: "#23262A",
+    backgroundColor: colors.background.secondary,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 16,
   },
   markAllText: {
-    color: "#fff",
+    color: colors.text.primary,
     fontSize: 14,
     fontWeight: "600",
   },
@@ -116,7 +123,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#23262A",
+    borderBottomColor: colors.background.secondary,
   },
   avatar: {
     width: 48,
@@ -135,37 +142,37 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   name: {
-    color: "#fff",
+    color: colors.text.primary,
     fontSize: 16,
     fontWeight: "600",
     marginBottom: 4,
   },
   action: {
-    color: "#B6C2CF",
+    color: colors.text.secondary,
     fontSize: 16,
     marginBottom: 4,
   },
   comment: {
-    color: "#fff",
+    color: colors.text.primary,
     fontSize: 16,
     marginBottom: 4,
     fontStyle: "italic",
   },
   time: {
-    color: "#7a8a99",
+    color: colors.text.secondary,
     fontSize: 14,
   },
   postImage: {
     width: 60,
     height: 60,
     borderRadius: 12,
-    backgroundColor: "#23262A",
+    backgroundColor: colors.background.secondary,
   },
   iconContainer: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: "#23262A",
+    backgroundColor: colors.background.secondary,
     justifyContent: "center",
     alignItems: "center",
     marginLeft: 12,

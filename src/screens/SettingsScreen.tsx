@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { colors } from "../utils/theme";
 
 const SETTINGS_SECTIONS = [
   {
@@ -102,7 +103,7 @@ export default function SettingsScreen() {
           onPress={() => router.back()}
           style={styles.backButton}
         >
-          <Ionicons name="arrow-back" size={24} color="#fff" />
+          <Ionicons name="arrow-back" size={24} color={colors.text.primary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Configuración</Text>
         <View style={styles.backButton} />
@@ -139,7 +140,11 @@ export default function SettingsScreen() {
                       <Ionicons
                         name={item.icon as any}
                         size={20}
-                        color={item.type === "danger" ? "#ff4d4d" : "#fff"}
+                        color={
+                          item.type === "danger"
+                            ? colors.error
+                            : colors.text.primary
+                        }
                       />
                     </View>
                     <Text
@@ -156,8 +161,13 @@ export default function SettingsScreen() {
                     <Switch
                       value={item.value}
                       onValueChange={() => {}}
-                      trackColor={{ false: "#23262A", true: "#2d353a" }}
-                      thumbColor={item.value ? "#fff" : "#7a8a99"}
+                      trackColor={{
+                        false: colors.background.secondary,
+                        true: colors.detail,
+                      }}
+                      thumbColor={
+                        item.value ? colors.text.primary : colors.text.secondary
+                      }
                     />
                   ) : item.value ? (
                     <View style={styles.settingValue}>
@@ -166,7 +176,7 @@ export default function SettingsScreen() {
                         <Ionicons
                           name="chevron-forward"
                           size={20}
-                          color="#7a8a99"
+                          color={colors.text.secondary}
                         />
                       )}
                     </View>
@@ -174,7 +184,7 @@ export default function SettingsScreen() {
                     <Ionicons
                       name="chevron-forward"
                       size={20}
-                      color="#7a8a99"
+                      color={colors.text.secondary}
                     />
                   )}
                 </TouchableOpacity>
@@ -194,7 +204,7 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#121417",
+    backgroundColor: colors.background.primary,
   },
   header: {
     flexDirection: "row",
@@ -203,20 +213,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#23262A",
+    borderBottomColor: colors.background.secondary,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#23262A",
+    backgroundColor: colors.background.secondary,
     justifyContent: "center",
     alignItems: "center",
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: "700",
-    color: "#fff",
+    color: colors.text.primary,
     letterSpacing: -0.5,
   },
   section: {
@@ -225,12 +235,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#7a8a99",
+    color: colors.text.secondary,
     marginBottom: 8,
     paddingHorizontal: 20,
   },
   sectionContent: {
-    backgroundColor: "#23262A",
+    backgroundColor: colors.background.secondary,
     borderRadius: 12,
     marginHorizontal: 20,
     overflow: "hidden",
@@ -243,7 +253,7 @@ const styles = StyleSheet.create({
   },
   settingItemBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: "#2d353a",
+    borderBottomColor: colors.detail,
   },
   settingItemLeft: {
     flexDirection: "row",
@@ -254,7 +264,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: "#2d353a",
+    backgroundColor: colors.detail,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -264,10 +274,10 @@ const styles = StyleSheet.create({
   settingTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#fff",
+    color: colors.text.primary,
   },
   settingTitleDanger: {
-    color: "#ff4d4d",
+    color: colors.error,
   },
   settingValue: {
     flexDirection: "row",
@@ -276,7 +286,7 @@ const styles = StyleSheet.create({
   },
   settingValueText: {
     fontSize: 16,
-    color: "#7a8a99",
+    color: colors.text.secondary,
   },
   version: {
     alignItems: "center",
@@ -284,6 +294,6 @@ const styles = StyleSheet.create({
   },
   versionText: {
     fontSize: 14,
-    color: "#7a8a99",
+    color: colors.text.secondary,
   },
 });

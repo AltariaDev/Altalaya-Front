@@ -8,7 +8,12 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "build:android": "expo build:android",
+    "build:ios": "expo build:ios",
+    "start:prod": "NODE_ENV=production expo start",
+    "clean": "expo r -c",
+    "cache:clear": "expo start --clear"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
@@ -47,6 +52,9 @@
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@types/react": "~19.0.10",
+    "babel-plugin-module-resolver": "^5.0.0",
+    "babel-plugin-transform-remove-console": "^6.9.4",
+    "babel-plugin-transform-remove-debugger": "^6.9.4",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~9.2.0",
     "typescript": "~5.8.3"

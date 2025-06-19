@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { colors } from "../utils/theme";
 
 export default function MiradorDetail() {
   const { mirador } = useLocalSearchParams();
@@ -24,7 +25,11 @@ export default function MiradorDetail() {
 
         <View style={styles.locationRow}>
           <View style={styles.locationIconBox}>
-            <Ionicons name="location-outline" size={24} color="#fff" />
+            <Ionicons
+              name="location-outline"
+              size={24}
+              color={colors.text.primary}
+            />
           </View>
           <View>
             <Text style={styles.locationCity}>San Francisco</Text>
@@ -43,15 +48,27 @@ export default function MiradorDetail() {
 
         <View style={styles.iconRow}>
           <TouchableOpacity style={styles.iconButton}>
-            <Ionicons name="heart-outline" size={24} color="#B6C2CF" />
+            <Ionicons
+              name="heart-outline"
+              size={24}
+              color={colors.text.secondary}
+            />
             <Text style={styles.iconText}>2.4k</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.iconButton}>
-            <Ionicons name="chatbubble-outline" size={24} color="#B6C2CF" />
+            <Ionicons
+              name="chatbubble-outline"
+              size={24}
+              color={colors.text.secondary}
+            />
             <Text style={styles.iconText}>1.2k</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.iconButton}>
-            <Ionicons name="bookmark-outline" size={24} color="#B6C2CF" />
+            <Ionicons
+              name="bookmark-outline"
+              size={24}
+              color={colors.text.secondary}
+            />
             <Text style={styles.iconText}>Guardar</Text>
           </TouchableOpacity>
         </View>
@@ -64,11 +81,11 @@ export default function MiradorDetail() {
           <View style={styles.inputBox}>
             <TextInput
               placeholder="Añade un comentario..."
-              placeholderTextColor="#7a8a99"
+              placeholderTextColor={colors.text.secondary}
               style={styles.input}
             />
             <TouchableOpacity style={styles.sendButton}>
-              <Ionicons name="send" size={20} color="#fff" />
+              <Ionicons name="send" size={20} color={colors.text.primary} />
             </TouchableOpacity>
           </View>
         </View>
@@ -80,7 +97,7 @@ export default function MiradorDetail() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#121417",
+    backgroundColor: colors.background.primary,
     paddingTop: 10,
   },
   header: {
@@ -91,7 +108,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   headerTitle: {
-    color: "#fff",
+    color: colors.text.primary,
     fontSize: 28,
     fontWeight: "700",
     letterSpacing: -0.5,
@@ -105,7 +122,7 @@ const styles = StyleSheet.create({
   locationIconBox: {
     width: 48,
     height: 48,
-    backgroundColor: "#23262A",
+    backgroundColor: colors.background.secondary,
     borderRadius: 16,
     justifyContent: "center",
     alignItems: "center",
@@ -117,18 +134,18 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   locationCity: {
-    color: "#fff",
+    color: colors.text.primary,
     fontSize: 20,
     fontWeight: "600",
     letterSpacing: -0.5,
   },
   locationPlace: {
-    color: "#B6C2CF",
+    color: colors.text.secondary,
     fontSize: 16,
     fontWeight: "500",
   },
   timeAgo: {
-    color: "#B6C2CF",
+    color: colors.text.secondary,
     fontSize: 16,
     fontWeight: "500",
     marginLeft: "auto",
@@ -139,7 +156,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   description: {
-    color: "#fff",
+    color: colors.text.primary,
     fontSize: 18,
     lineHeight: 26,
     paddingHorizontal: 24,
@@ -159,7 +176,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   iconText: {
-    color: "#B6C2CF",
+    color: colors.text.secondary,
     fontSize: 16,
     fontWeight: "500",
   },
@@ -177,7 +194,7 @@ const styles = StyleSheet.create({
   },
   inputBox: {
     flex: 1,
-    backgroundColor: "#23262A",
+    backgroundColor: colors.background.secondary,
     borderRadius: 24,
     flexDirection: "row",
     alignItems: "center",
@@ -190,14 +207,14 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    color: "#fff",
+    color: colors.text.primary,
     fontSize: 16,
     paddingVertical: 12,
   },
   sendButton: {
     width: 36,
     height: 36,
-    backgroundColor: "#2d353a",
+    backgroundColor: colors.background.secondary,
     borderRadius: 18,
     justifyContent: "center",
     alignItems: "center",

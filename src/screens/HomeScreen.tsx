@@ -8,39 +8,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-
-const parks = [
-  {
-    title: "Bernal Heights Park",
-    views: "8.2k",
-    image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
-  },
-  {
-    title: "Twin Peaks",
-    views: "9.5k",
-    image: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
-  },
-  {
-    title: "Mission Dolores Park",
-    views: "10.3k",
-    image: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429",
-  },
-  {
-    title: "Buena Vista Park",
-    views: "11k",
-    image: "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99",
-  },
-  {
-    title: "Golden Gate Park",
-    views: "12k",
-    image: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
-  },
-  {
-    title: "Alamo Square",
-    views: "13k",
-    image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
-  },
-];
+import { miradores } from "../../data/Mirdaores";
+import { colors } from "../utils/theme";
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -48,7 +17,7 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <FlatList
-        data={parks}
+        data={miradores}
         numColumns={2}
         keyExtractor={(_, i) => i.toString()}
         contentContainerStyle={styles.listContainer}
@@ -79,7 +48,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#121417",
+    backgroundColor: colors.background.primary,
   },
   listContainer: {
     padding: 16,
@@ -87,7 +56,7 @@ const styles = StyleSheet.create({
   card: {
     flex: 1,
     margin: 8,
-    backgroundColor: "#1c2426",
+    backgroundColor: colors.background.secondary,
     borderRadius: 20,
     overflow: "hidden",
     shadowColor: "#000",
@@ -99,20 +68,20 @@ const styles = StyleSheet.create({
   image: {
     width: "100%",
     aspectRatio: 16 / 9,
-    backgroundColor: "#222",
+    backgroundColor: colors.background.secondary,
   },
   cardContent: {
     padding: 16,
   },
   title: {
-    color: "#fff",
+    color: colors.text.primary,
     fontSize: 18,
     fontWeight: "600",
     marginBottom: 8,
     letterSpacing: -0.5,
   },
   views: {
-    color: "#B6C2CF",
+    color: colors.text.secondary,
     fontSize: 16,
     fontWeight: "500",
   },

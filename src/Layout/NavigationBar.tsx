@@ -5,8 +5,15 @@ import {
   MaterialIcons,
 } from "@expo/vector-icons";
 import { Href, router, usePathname } from "expo-router";
-import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React, { useCallback, useMemo } from "react";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
+import Animated, {
+  interpolateColor,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
+import { colors } from "../utils/theme";
 
 type TabPath =
   | "/"
@@ -16,79 +23,180 @@ type TabPath =
   | "/Profile"
   | "/MapMiradores";
 
-const tabs: { label: string; icon: React.ReactElement; path: TabPath }[] = [
+const tabs = [
   {
     label: "Inicio",
-    icon: <Feather name="home" size={24} color="#AAB7B8" />,
-    path: "/",
+    icon: "home" as const,
+    path: "/" as TabPath,
   },
   {
     label: "Mapa",
-    icon: <Feather name="map" size={24} color="#AAB7B8" />,
-    path: "/MapMiradores",
+    icon: "map" as const,
+    path: "/MapMiradores" as TabPath,
   },
   {
     label: "Crear",
-    icon: <AntDesign name="pluscircleo" size={24} color="#AAB7B8" />,
-    path: "/CreateMirador",
+    icon: "pluscircleo" as const,
+    path: "/CreateMirador" as TabPath,
   },
   {
     label: "Notificaciones",
-    icon: <Ionicons name="notifications-outline" size={24} color="#AAB7B8" />,
-    path: "/Notifications",
+    icon: "notifications-outline" as const,
+    path: "/Notifications" as TabPath,
   },
   {
     label: "Perfil",
-    icon: <MaterialIcons name="person-outline" size={24} color="#AAB7B8" />,
-    path: "/Profile",
+    icon: "person-outline" as const,
+    path: "/Profile" as TabPath,
   },
 ];
 
-export default function BottomNavBar() {
+const AnimatedTouchableOpacity =
+  Animated.createAnimatedComponent(TouchableOpacity);
+
+const TabItem = React.memo(
+  ({
+    tab,
+    isActive,
+    onPress,
+  }: {
+    tab: (typeof tabs)[0];
+    isActive: boolean;
+    onPress: () => void;
+  }) => {
+    const scale = useSharedValue(1);
+    const backgroundColor = useSharedValue(isActive ? 1 : 0);
+    const textColor = useSharedValue(isActive ? 1 : 0);
+
+    React.useEffect(() => {
+      backgroundColor.value = withSpring(isActive ? 1 : 0, {
+        damping: 20,
+        stiffness: 200,
+      });
+      textColor.value = withSpring(isActive ? 1 : 0, {
+        damping: 20,
+        stiffness: 200,
+      });
+    }, [isActive, backgroundColor, textColor]);
+
+    const handlePressIn = useCallback(() => {
+      scale.value = withSpring(0.95, { damping: 20, stiffness: 300 });
+    }, [scale]);
+
+    const handlePressOut = useCallback(() => {
+      scale.value = withSpring(1, { damping: 20, stiffness: 300 });
+    }, [scale]);
+
+    const tabAnimatedStyle = useAnimatedStyle(() => ({
+      transform: [{ scale: scale.value }],
+    }));
+
+    const iconContainerAnimatedStyle = useAnimatedStyle(() => ({
+      backgroundColor: interpolateColor(
+        backgroundColor.value,
+        [0, 1],
+        ["transparent", colors.background.secondary]
+      ),
+    }));
+
+    const textAnimatedStyle = useAnimatedStyle(() => ({
+      color: interpolateColor(
+        textColor.value,
+        [0, 1],
+        [colors.text.secondary, colors.text.primary]
+      ),
+      fontWeight: textColor.value > 0.5 ? "600" : "500",
+    }));
+
+    const iconColor = isActive ? colors.text.primary : colors.text.secondary;
+
+    const renderIcon = () => {
+      switch (tab.icon) {
+        case "home":
+          return <Feather name="home" size={24} color={iconColor} />;
+        case "map":
+          return <Feather name="map" size={24} color={iconColor} />;
+        case "pluscircleo":
+          return <AntDesign name="pluscircleo" size={24} color={iconColor} />;
+        case "notifications-outline":
+          return (
+            <Ionicons
+              name="notifications-outline"
+              size={24}
+              color={iconColor}
+            />
+          );
+        case "person-outline":
+          return (
+            <MaterialIcons name="person-outline" size={24} color={iconColor} />
+          );
+        default:
+          return null;
+      }
+    };
+
+    return (
+      <AnimatedTouchableOpacity
+        style={[styles.tab, tabAnimatedStyle]}
+        onPress={onPress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        activeOpacity={1}
+      >
+        <Animated.View
+          style={[styles.iconContainer, iconContainerAnimatedStyle]}
+        >
+          {renderIcon()}
+        </Animated.View>
+        <Animated.Text style={[styles.label, textAnimatedStyle]}>
+          {tab.label}
+        </Animated.Text>
+      </AnimatedTouchableOpacity>
+    );
+  }
+);
+
+TabItem.displayName = "TabItem";
+
+const BottomNavBar = React.memo(() => {
   const pathname = usePathname();
 
-  return (
-    <View style={styles.container}>
-      {tabs.map((tab) => (
-        <TouchableOpacity
-          key={tab.label}
-          style={styles.tab}
-          onPress={() => {
-            if (pathname !== tab.path) {
-              router.push(tab.path as Href);
-            }
-          }}
-        >
-          <View
-            style={[
-              styles.iconContainer,
-              pathname === tab.path && styles.activeIconContainer,
-            ]}
-          >
-            {React.cloneElement(tab.icon, {
-              color: pathname === tab.path ? "#fff" : "#AAB7B8",
-            })}
-          </View>
-          <Text
-            style={[styles.label, pathname === tab.path && styles.activeLabel]}
-          >
-            {tab.label}
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </View>
+  const handleTabPress = useCallback(
+    (path: TabPath) => {
+      if (pathname !== path) {
+        router.push(path as Href);
+      }
+    },
+    [pathname]
   );
-}
+
+  const tabItems = useMemo(
+    () =>
+      tabs.map((tab) => (
+        <TabItem
+          key={tab.label}
+          tab={tab}
+          isActive={pathname === tab.path}
+          onPress={() => handleTabPress(tab.path)}
+        />
+      )),
+    [pathname, handleTabPress]
+  );
+
+  return <View style={styles.container}>{tabItems}</View>;
+});
+
+BottomNavBar.displayName = "BottomNavBar";
 
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
-    backgroundColor: "#1c2426",
+    backgroundColor: colors.background.primary,
     paddingVertical: 8,
     justifyContent: "space-between",
     alignItems: "center",
     borderTopWidth: 1,
-    borderTopColor: "#23262A",
+    borderTopColor: colors.background.secondary,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.1,
@@ -110,15 +218,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   activeIconContainer: {
-    backgroundColor: "#23262A",
+    backgroundColor: colors.background.secondary,
   },
   label: {
-    color: "#AAB7B8",
+    color: colors.text.secondary,
     fontSize: 12,
     fontWeight: "500",
   },
   activeLabel: {
-    color: "#fff",
+    color: colors.text.primary,
     fontWeight: "600",
   },
 });
+
+export default BottomNavBar;

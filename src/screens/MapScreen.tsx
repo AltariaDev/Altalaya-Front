@@ -1,163 +1,84 @@
-import * as Location from "expo-location";
-import React, { useEffect, useState } from "react";
-import {
-  ActivityIndicator,
-  Alert,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import React, { useMemo } from "react";
+import { ActivityIndicator, Alert, StyleSheet, View } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE, Region } from "react-native-maps";
-import Modal from "../components/Modal";
+import { miradores } from "../../data/Mirdaores";
+import { useLocation } from "../hooks/useLocation";
+import { PERFORMANCE_CONFIG } from "../utils/performance";
+import { colors } from "../utils/theme";
 
-interface MarkerType {
-  coordinate: {
-    latitude: number;
-    longitude: number;
-  };
-  key: string;
-  title: string;
-  description?: string;
-}
+const MapScreen = React.memo(() => {
+  const { location, isLoading, error } = useLocation();
 
-const MapScreen = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [selectedCoordinate, setSelectedCoordinate] = useState<{
-    latitude: number;
-    longitude: number;
-  } | null>(null);
-  const [newMarkerTitle, setNewMarkerTitle] = useState("");
-  const [newMarkerDescription, setNewMarkerDescription] = useState("");
-  const [region, setRegion] = useState<Region>({
-    latitude: 36.7213,
-    longitude: -4.4217,
-    latitudeDelta: 0.0922,
-    longitudeDelta: 0.0421,
-  });
+  // Default region (Malaga)
+  const defaultRegion: Region = useMemo(
+    () => ({
+      latitude: 36.7213,
+      longitude: -4.4217,
+      latitudeDelta: 0.0922,
+      longitudeDelta: 0.0421,
+    }),
+    []
+  );
 
-  const [markers, setMarkers] = useState<MarkerType[]>([]);
-
-  useEffect(() => {
-    getCurrentLocation();
-  }, []);
-
-  const getCurrentLocation = async () => {
-    try {
-      setIsLoading(true);
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        Alert.alert("Error", "Permission to access location was denied");
-        return;
-      }
-
-      const location = await Location.getCurrentPositionAsync({});
-      const { latitude, longitude } = location.coords;
-      setRegion({
-        latitude,
-        longitude,
+  const region = useMemo(() => {
+    if (location) {
+      return {
+        latitude: location.latitude,
+        longitude: location.longitude,
         latitudeDelta: 0.0922,
         longitudeDelta: 0.0421,
-      });
-    } catch (error) {
-      Alert.alert("Error", "Could not get location");
-    } finally {
-      setIsLoading(false);
+      };
     }
-  };
+    return defaultRegion;
+  }, [location, defaultRegion]);
 
-  const onMapPress = (e: {
-    nativeEvent: { coordinate: { latitude: number; longitude: number } };
-  }) => {
-    const coordinate = e.nativeEvent.coordinate;
-    setSelectedCoordinate(coordinate);
-    setIsModalVisible(true);
-  };
+  const markers = useMemo(
+    () =>
+      miradores.map((marker) => (
+        <Marker
+          key={marker.key}
+          coordinate={marker.coordinate}
+          title={marker.title}
+          description={marker.description}
+        />
+      )),
+    []
+  );
 
-  const handleAddMarker = () => {
-    if (!selectedCoordinate || !newMarkerTitle) return;
-
-    setMarkers([
-      ...markers,
-      {
-        coordinate: selectedCoordinate,
-        key: Date.now().toString(),
-        title: newMarkerTitle,
-        description: newMarkerDescription,
-      },
-    ]);
-
-    setNewMarkerTitle("");
-    setNewMarkerDescription("");
-    setIsModalVisible(false);
-    setSelectedCoordinate(null);
-  };
+  // Afficher l'erreur si nécessaire
+  React.useEffect(() => {
+    if (error) {
+      Alert.alert("Error", error);
+    }
+  }, [error]);
 
   return (
     <View style={styles.container}>
       {isLoading && (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#0000ff" />
+          <ActivityIndicator size="large" color={colors.accent} />
         </View>
       )}
       <MapView
         provider={PROVIDER_GOOGLE}
         style={styles.map}
         region={region}
-        onRegionChangeComplete={setRegion}
-        onLongPress={onMapPress}
-        showsUserLocation={true}
-        showsMyLocationButton={true}
+        showsUserLocation={PERFORMANCE_CONFIG.MAP_CONFIG.showsUserLocation}
+        showsMyLocationButton={
+          PERFORMANCE_CONFIG.MAP_CONFIG.showsMyLocationButton
+        }
+        loadingEnabled={PERFORMANCE_CONFIG.MAP_CONFIG.loadingEnabled}
+        loadingIndicatorColor={colors.accent}
+        loadingBackgroundColor={colors.background.primary}
+        followsUserLocation={PERFORMANCE_CONFIG.MAP_CONFIG.followsUserLocation}
       >
-        {markers.map((marker) => (
-          <Marker
-            key={marker.key}
-            coordinate={marker.coordinate}
-            title={marker.title}
-            description={marker.description}
-          />
-        ))}
+        {markers}
       </MapView>
-
-      <Modal
-        visible={isModalVisible}
-        onClose={() => {
-          setIsModalVisible(false);
-          setSelectedCoordinate(null);
-          setNewMarkerTitle("");
-          setNewMarkerDescription("");
-        }}
-        title="Añadir Mirador"
-      >
-        <View style={styles.modalContent}>
-          <TextInput
-            style={styles.input}
-            placeholder="Nombre del mirador"
-            value={newMarkerTitle}
-            onChangeText={setNewMarkerTitle}
-          />
-          <TextInput
-            style={[styles.input, styles.textArea]}
-            placeholder="Descripción"
-            value={newMarkerDescription}
-            onChangeText={setNewMarkerDescription}
-            multiline
-            numberOfLines={4}
-          />
-          <TouchableOpacity
-            style={[styles.button, !newMarkerTitle && styles.buttonDisabled]}
-            onPress={handleAddMarker}
-            disabled={!newMarkerTitle}
-          >
-            <Text style={styles.buttonText}>Añadir Mirador</Text>
-          </TouchableOpacity>
-        </View>
-      </Modal>
     </View>
   );
-};
+});
+
+MapScreen.displayName = "MapScreen";
 
 const styles = StyleSheet.create({
   container: {
@@ -183,7 +104,7 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: colors.detail,
     borderRadius: 8,
     padding: 12,
     marginBottom: 16,
@@ -194,16 +115,16 @@ const styles = StyleSheet.create({
     textAlignVertical: "top",
   },
   button: {
-    backgroundColor: "#007AFF",
+    backgroundColor: colors.accent,
     padding: 15,
     borderRadius: 8,
     alignItems: "center",
   },
   buttonDisabled: {
-    backgroundColor: "#ccc",
+    backgroundColor: colors.text.secondary,
   },
   buttonText: {
-    color: "white",
+    color: colors.text.primary,
     fontSize: 16,
     fontWeight: "bold",
   },

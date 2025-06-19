@@ -1,74 +1,204 @@
-import React from "react";
-import { Image, ScrollView, Text, View } from "react-native";
+import React, { useCallback, useEffect, useMemo } from "react";
+import { ScrollView, Text } from "react-native";
+import Animated, {
+  interpolate,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withSpring,
+} from "react-native-reanimated";
+import { colors } from "../../../utils/theme";
+import { PERFORMANCE_CONFIG } from "../../../utils/performance";
+import OptimizedImage from "../../OptimizedImage";
 
 const HIGHLIGHTED = [
   {
     title: "Vista del puente Golden Gate",
-    image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb", // Cambia por la tuya
+    image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
   },
   {
     title: "Empire State Building",
-    image: "https://images.unsplash.com/photo-1464983953574-0892a716854b", // Cambia por la tuya
+    image: "https://images.unsplash.com/photo-1464983953574-0892a716854b",
   },
 ];
 
-export default function Highlighted() {
+const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
+
+const HighlightedCard = React.memo(({
+  item,
+  index,
+  scrollX,
+  cardAnimation
+}: {
+  item: typeof HIGHLIGHTED[0];
+  index: number;
+  scrollX: Animated.SharedValue<number>;
+  cardAnimation: {
+    scale: Animated.SharedValue<number>;
+    opacity: Animated.SharedValue<number>;
+    translateX: Animated.SharedValue<number>;
+  };
+}) => {
+  const cardAnimatedStyle = useAnimatedStyle(() => {
+    const input = scrollX.value;
+    const cardWidth = 300;
+    const cardCenter = index * cardWidth + cardWidth / 2;
+    const distance = Math.abs(input - cardCenter);
+    const maxDistance = cardWidth * 2;
+
+    const scale = interpolate(distance, [0, maxDistance], [1.05, 1], "clamp");
+    const opacity = interpolate(distance, [0, maxDistance], [1, 0.7], "clamp");
+
+    return {
+      opacity: cardAnimation.opacity.value * opacity,
+      transform: [
+        { scale: cardAnimation.scale.value * scale },
+        { translateX: cardAnimation.translateX.value },
+      ],
+    };
+  });
+
+  const cardStyle = useMemo(() => ({
+    width: 280,
+    marginRight: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 5,
+  }), []);
+
+  const imageStyle = useMemo(() => ({
+    width: "100%",
+    height: 180,
+    borderRadius: 24,
+    marginBottom: 16,
+    backgroundColor: colors.background.secondary,
+  }), []);
+
+  const textStyle = useMemo(() => ({
+    color: colors.text.primary,
+    fontSize: 20,
+    fontWeight: "600" as const,
+    letterSpacing: -0.5,
+    marginLeft: 4,
+  }), []);
+
+  return (
+    <Animated.View style={[cardStyle, cardAnimatedStyle]}>
+      <OptimizedImage
+        source={{ uri: item.image }}
+        style={imageStyle}
+      />
+      <Text style={textStyle}>{item.title}</Text>
+    </Animated.View>
+  );
+});
+
+HighlightedCard.displayName = 'HighlightedCard';
+
+const Highlighted = React.memo(() => {
+  const titleOpacity = useSharedValue(0);
+  const titleTranslateY = useSharedValue(30);
+  const scrollX = useSharedValue(0);
+
+  const cardAnimations = useMemo(() =>
+    HIGHLIGHTED.map(() => ({
+      scale: useSharedValue(0.9),
+      opacity: useSharedValue(0),
+      translateX: useSharedValue(100),
+    })),
+    []
+  );
+
+  useEffect(() => {
+    titleOpacity.value = withSpring(1, {
+      damping: PERFORMANCE_CONFIG.ANIMATION_CONFIG.damping,
+      stiffness: PERFORMANCE_CONFIG.ANIMATION_CONFIG.stiffness
+    });
+    titleTranslateY.value = withSpring(0, {
+      damping: PERFORMANCE_CONFIG.ANIMATION_CONFIG.damping,
+      stiffness: PERFORMANCE_CONFIG.ANIMATION_CONFIG.stiffness
+    });
+
+    cardAnimations.forEach((animation, index) => {
+      animation.opacity.value = withDelay(
+        index * 150,
+        withSpring(1, {
+          damping: PERFORMANCE_CONFIG.ANIMATION_CONFIG.damping,
+          stiffness: PERFORMANCE_CONFIG.ANIMATION_CONFIG.stiffness
+        })
+      );
+      animation.scale.value = withDelay(
+        index * 150,
+        withSpring(1, {
+          damping: PERFORMANCE_CONFIG.ANIMATION_CONFIG.damping,
+          stiffness: PERFORMANCE_CONFIG.ANIMATION_CONFIG.stiffness
+        })
+      );
+      animation.translateX.value = withDelay(
+        index * 150,
+        withSpring(0, {
+          damping: PERFORMANCE_CONFIG.ANIMATION_CONFIG.damping,
+          stiffness: PERFORMANCE_CONFIG.ANIMATION_CONFIG.stiffness
+        })
+      );
+    });
+  }, [titleOpacity, titleTranslateY, cardAnimations]);
+
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      scrollX.value = event.contentOffset.x;
+    },
+  });
+
+  const titleAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: titleOpacity.value,
+    transform: [{ translateY: titleTranslateY.value }],
+  }));
+
+  const titleStyle = useMemo(() => ({
+    color: colors.text.primary,
+    fontWeight: "700" as const,
+    fontSize: 26,
+    marginBottom: 20,
+    letterSpacing: -0.5,
+  }), []);
+
+  const scrollViewStyle = useMemo(() => ({
+    paddingRight: 20,
+  }), []);
+
+  const renderCard = useCallback((item: typeof HIGHLIGHTED[0], index: number) => (
+    <HighlightedCard
+      key={item.title}
+      item={item}
+      index={index}
+      scrollX={scrollX}
+      cardAnimation={cardAnimations[index]}
+    />
+  ), [scrollX, cardAnimations]);
+
   return (
     <>
-      <Text
-        style={{
-          color: "#fff",
-          fontWeight: "700",
-          fontSize: 26,
-          marginBottom: 20,
-          letterSpacing: -0.5,
-        }}
-      >
+      <Animated.Text style={[titleStyle, titleAnimatedStyle]}>
         Miradores destacados
-      </Text>
-      <ScrollView
+      </Animated.Text>
+      <AnimatedScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingRight: 20 }}
+        contentContainerStyle={scrollViewStyle}
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
+        removeClippedSubviews={true}
       >
-        {HIGHLIGHTED.map((item) => (
-          <View
-            key={item.title}
-            style={{
-              width: 280,
-              marginRight: 20,
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.2,
-              shadowRadius: 8,
-              elevation: 5,
-            }}
-          >
-            <Image
-              source={{ uri: item.image }}
-              style={{
-                width: "100%",
-                height: 180,
-                borderRadius: 24,
-                marginBottom: 16,
-                backgroundColor: "#222",
-              }}
-              resizeMode="cover"
-            />
-            <Text
-              style={{
-                color: "#fff",
-                fontSize: 20,
-                fontWeight: "600",
-                letterSpacing: -0.5,
-                marginLeft: 4,
-              }}
-            >
-              {item.title}
-            </Text>
-          </View>
-        ))}
-      </ScrollView>
+        {HIGHLIGHTED.map(renderCard)}
+      </AnimatedScrollView>
     </>
   );
-}
+});
+
+Highlighted.displayName = 'Highlighted';
+
+export default Highlighted;
