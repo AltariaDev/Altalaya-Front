@@ -1,0 +1,42 @@
+{
+  "common": {
+    "discover": "Découvrir",
+    "mirador": "Mirador",
+    "retry": "Réessayer",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "close": "Fermer",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès"
+  },
+  "navigation": {
+    "home": "Accueil",
+    "map": "Carte",
+    "create": "Créer",
+    "notifications": "Notifications",
+    "profile": "Profil",
+    "settings": "Paramètres"
+  },
+  "profile": {
+    "myMiradores": "Mes Miradores",
+    "followers": "Abonnés",
+    "following": "Suivants",
+    "posts": "Publications"
+  },
+  "create": {
+    "title": "Créer un Mirador",
+    "publish": "Publier",
+    "selectImage": "Appuyez pour sélectionner une image",
+    "namePlaceholder": "Nom du Mirador",
+    "descriptionPlaceholder": "Décrivez ce mirador...",
+    "location": "Emplacement"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "Aucune notification",
+    "emptyMessage": "Lorsque vous recevez des notifications, elles apparaîtront ici"
+  }
+}

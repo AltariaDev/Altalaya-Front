@@ -1,6 +1,8 @@
 import { Stack, usePathname } from "expo-router";
 import React, { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
+import ErrorBoundary from "../src/components/ErrorBoundary";
+import "../src/i18n";
 import NavigationBar from "../src/Layout/NavigationBar";
 import Navbar from "../src/Layout/Topbar";
 import { colors } from "../src/utils/theme";
@@ -14,18 +16,27 @@ const Layout = React.memo(() => {
     [pathname]
   );
 
+  const isAuthPage = pathname === "/Login" || pathname === "/Register";
+
+  const handleError = (error: Error, errorInfo: any) => {
+    // Here you could send error to crash reporting service
+    console.error("App Error:", error, errorInfo);
+  };
+
   return (
-    <View style={styles.container}>
-      <Navbar title={title} />
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          animation: "slide_from_right",
-          animationDuration: 200,
-        }}
-      />
-      <NavigationBar />
-    </View>
+    <ErrorBoundary onError={handleError}>
+      <View style={styles.container}>
+        {!isAuthPage && <Navbar title={title} />}
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            animation: "slide_from_right",
+            animationDuration: 200,
+          }}
+        />
+        {!isAuthPage && <NavigationBar />}
+      </View>
+    </ErrorBoundary>
   );
 });
 

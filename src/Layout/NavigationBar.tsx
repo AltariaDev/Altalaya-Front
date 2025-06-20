@@ -1,11 +1,7 @@
-import {
-  AntDesign,
-  Feather,
-  Ionicons,
-  MaterialIcons,
-} from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { Href, router, usePathname } from "expo-router";
 import React, { useCallback, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import Animated, {
   interpolateColor,
@@ -25,27 +21,27 @@ type TabPath =
 
 const tabs = [
   {
-    label: "Inicio",
+    labelKey: "navigation.home",
     icon: "home" as const,
     path: "/" as TabPath,
   },
   {
-    label: "Mapa",
+    labelKey: "navigation.map",
     icon: "map" as const,
     path: "/MapMiradores" as TabPath,
   },
   {
-    label: "Crear",
-    icon: "pluscircleo" as const,
+    labelKey: "navigation.create",
+    icon: "add-circle-outline" as const,
     path: "/CreateMirador" as TabPath,
   },
   {
-    label: "Notificaciones",
+    labelKey: "navigation.notifications",
     icon: "notifications-outline" as const,
     path: "/Notifications" as TabPath,
   },
   {
-    label: "Perfil",
+    labelKey: "navigation.profile",
     icon: "person-outline" as const,
     path: "/Profile" as TabPath,
   },
@@ -64,6 +60,7 @@ const TabItem = React.memo(
     isActive: boolean;
     onPress: () => void;
   }) => {
+    const { t } = useTranslation();
     const scale = useSharedValue(1);
     const backgroundColor = useSharedValue(isActive ? 1 : 0);
     const textColor = useSharedValue(isActive ? 1 : 0);
@@ -105,35 +102,7 @@ const TabItem = React.memo(
         [0, 1],
         [colors.text.secondary, colors.text.primary]
       ),
-      fontWeight: textColor.value > 0.5 ? "600" : "500",
     }));
-
-    const iconColor = isActive ? colors.text.primary : colors.text.secondary;
-
-    const renderIcon = () => {
-      switch (tab.icon) {
-        case "home":
-          return <Feather name="home" size={24} color={iconColor} />;
-        case "map":
-          return <Feather name="map" size={24} color={iconColor} />;
-        case "pluscircleo":
-          return <AntDesign name="pluscircleo" size={24} color={iconColor} />;
-        case "notifications-outline":
-          return (
-            <Ionicons
-              name="notifications-outline"
-              size={24}
-              color={iconColor}
-            />
-          );
-        case "person-outline":
-          return (
-            <MaterialIcons name="person-outline" size={24} color={iconColor} />
-          );
-        default:
-          return null;
-      }
-    };
 
     return (
       <AnimatedTouchableOpacity
@@ -146,10 +115,14 @@ const TabItem = React.memo(
         <Animated.View
           style={[styles.iconContainer, iconContainerAnimatedStyle]}
         >
-          {renderIcon()}
+          <Ionicons
+            name={tab.icon as any}
+            size={20}
+            color={isActive ? colors.text.primary : colors.text.secondary}
+          />
         </Animated.View>
         <Animated.Text style={[styles.label, textAnimatedStyle]}>
-          {tab.label}
+          {t(tab.labelKey)}
         </Animated.Text>
       </AnimatedTouchableOpacity>
     );
@@ -174,7 +147,7 @@ const BottomNavBar = React.memo(() => {
     () =>
       tabs.map((tab) => (
         <TabItem
-          key={tab.label}
+          key={tab.labelKey}
           tab={tab}
           isActive={pathname === tab.path}
           onPress={() => handleTabPress(tab.path)}

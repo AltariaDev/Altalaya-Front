@@ -1,8 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import React from "react";
 import {
   Image,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -16,14 +18,26 @@ export default function MiradorDetail() {
   const { mirador } = useLocalSearchParams();
   const miradorData = JSON.parse(mirador as string);
 
+  console.log(miradorData.image);
   return (
     <View style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
         <View style={styles.header}>
           <Text style={styles.headerTitle}>{miradorData.title}</Text>
         </View>
 
-        <View style={styles.locationRow}>
+        <TouchableOpacity
+          style={styles.locationRow}
+          onPress={() => {
+            router.push({
+              pathname: "/MapMiradores",
+              params: { mirador: JSON.stringify(miradorData) },
+            });
+          }}
+        >
           <View style={styles.locationIconBox}>
             <Ionicons
               name="location-outline"
@@ -32,19 +46,15 @@ export default function MiradorDetail() {
             />
           </View>
           <View>
-            <Text style={styles.locationCity}>San Francisco</Text>
-            <Text style={styles.locationPlace}>California, USA</Text>
+            <Text style={styles.locationCity}>{miradorData.city}</Text>
+            <Text style={styles.locationPlace}>{miradorData.country}</Text>
           </View>
           <Text style={styles.timeAgo}>Hace 2 horas</Text>
-        </View>
+        </TouchableOpacity>
 
         <Image source={{ uri: miradorData.image }} style={styles.mainImage} />
 
-        <Text style={styles.description}>
-          Una vista impresionante del puente Golden Gate desde el mirador más
-          alto de San Francisco. Perfecto para disfrutar del atardecer y tomar
-          fotos increíbles.
-        </Text>
+        <Text style={styles.description}>{miradorData.description}</Text>
 
         <View style={styles.iconRow}>
           <TouchableOpacity style={styles.iconButton}>
@@ -53,7 +63,7 @@ export default function MiradorDetail() {
               size={24}
               color={colors.text.secondary}
             />
-            <Text style={styles.iconText}>2.4k</Text>
+            <Text style={styles.iconText}>{miradorData.likes}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.iconButton}>
             <Ionicons
@@ -61,7 +71,7 @@ export default function MiradorDetail() {
               size={24}
               color={colors.text.secondary}
             />
-            <Text style={styles.iconText}>1.2k</Text>
+            <Text style={styles.iconText}>{miradorData.comments}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.iconButton}>
             <Ionicons
@@ -69,27 +79,31 @@ export default function MiradorDetail() {
               size={24}
               color={colors.text.secondary}
             />
-            <Text style={styles.iconText}>Guardar</Text>
+            <Text style={styles.iconText}>{miradorData.views}</Text>
           </TouchableOpacity>
         </View>
-
-        <View style={styles.commentRow}>
-          <Image
-            source={{ uri: "https://i.pravatar.cc/150?img=1" }}
-            style={styles.avatar}
-          />
-          <View style={styles.inputBox}>
-            <TextInput
-              placeholder="Añade un comentario..."
-              placeholderTextColor={colors.text.secondary}
-              style={styles.input}
-            />
-            <TouchableOpacity style={styles.sendButton}>
-              <Ionicons name="send" size={20} color={colors.text.primary} />
-            </TouchableOpacity>
-          </View>
-        </View>
       </ScrollView>
+
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "padding"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 120}
+        style={styles.commentRow}
+      >
+        <Image
+          source={{ uri: "https://i.pravatar.cc/150?img=1" }}
+          style={styles.avatar}
+        />
+        <View style={styles.inputBox}>
+          <TextInput
+            placeholder="Añade un comentario..."
+            placeholderTextColor={colors.text.secondary}
+            style={styles.input}
+          />
+          <TouchableOpacity style={styles.sendButton}>
+            <Ionicons name="send" size={20} color={colors.text.primary} />
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
     </View>
   );
 }
@@ -99,6 +113,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background.primary,
     paddingTop: 10,
+  },
+  scrollContent: {
+    flexGrow: 1,
   },
   header: {
     flexDirection: "row",
@@ -184,7 +201,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 24,
-    marginBottom: 32,
+    paddingVertical: 16,
+    backgroundColor: colors.background.primary,
+    borderTopWidth: 1,
+    borderTopColor: colors.background.secondary,
   },
   avatar: {
     width: 48,

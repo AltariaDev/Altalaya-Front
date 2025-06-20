@@ -1,0 +1,42 @@
+{
+  "common": {
+    "discover": "Discover",
+    "mirador": "Mirador",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success"
+  },
+  "navigation": {
+    "home": "Home",
+    "map": "Map",
+    "create": "Create",
+    "notifications": "Notifications",
+    "profile": "Profile",
+    "settings": "Settings"
+  },
+  "profile": {
+    "myMiradores": "My Miradores",
+    "followers": "Followers",
+    "following": "Following",
+    "posts": "Posts"
+  },
+  "create": {
+    "title": "Create Mirador",
+    "publish": "Publish",
+    "selectImage": "Tap to select an image",
+    "namePlaceholder": "Mirador name",
+    "descriptionPlaceholder": "Describe this mirador...",
+    "location": "Location"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "No notifications",
+    "emptyMessage": "When you receive notifications, they will appear here"
+  }
+}

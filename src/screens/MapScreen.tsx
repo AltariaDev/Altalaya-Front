@@ -1,56 +1,69 @@
-import React, { useMemo } from "react";
+import { useLocalSearchParams } from "expo-router";
+import React, { useEffect, useMemo, useRef } from "react";
 import { ActivityIndicator, Alert, StyleSheet, View } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE, Region } from "react-native-maps";
-import { miradores } from "../../data/Mirdaores";
 import { useLocation } from "../hooks/useLocation";
+import { useMiradores } from "../store";
 import { PERFORMANCE_CONFIG } from "../utils/performance";
 import { colors } from "../utils/theme";
 
 const MapScreen = React.memo(() => {
   const { location, isLoading, error } = useLocation();
+  const { mirador } = useLocalSearchParams();
+  const miradores = useMiradores();
+  const miradorData = mirador ? JSON.parse(mirador as string) : null;
+  const selectedMarkerRef = useRef<any>(null);
 
-  // Default region (Malaga)
   const defaultRegion: Region = useMemo(
     () => ({
-      latitude: 36.7213,
-      longitude: -4.4217,
-      latitudeDelta: 0.0922,
-      longitudeDelta: 0.0421,
+      latitude: miradorData?.coordinate.latitude ?? 36.7213,
+      longitude: miradorData?.coordinate.longitude ?? -4.4217,
+      latitudeDelta: miradorData ? 0.01 : 0.0922,
+      longitudeDelta: miradorData ? 0.01 : 0.0421,
     }),
-    []
+    [miradorData]
   );
 
   const region = useMemo(() => {
     if (location) {
       return {
-        latitude: location.latitude,
-        longitude: location.longitude,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
+        latitude: miradorData?.coordinate.latitude ?? location.latitude,
+        longitude: miradorData?.coordinate.longitude ?? location.longitude,
+        latitudeDelta: miradorData ? 0.01 : 0.0922,
+        longitudeDelta: miradorData ? 0.01 : 0.0421,
       };
     }
     return defaultRegion;
-  }, [location, defaultRegion]);
+  }, [location, defaultRegion, miradorData]);
 
   const markers = useMemo(
     () =>
       miradores.map((marker) => (
         <Marker
           key={marker.key}
+          ref={miradorData?.key === marker.key ? selectedMarkerRef : undefined}
           coordinate={marker.coordinate}
           title={marker.title}
           description={marker.description}
+          pinColor={miradorData?.key === marker.key ? colors.accent : undefined}
         />
       )),
-    []
+    [miradores, miradorData]
   );
 
-  // Afficher l'erreur si nécessaire
   React.useEffect(() => {
     if (error) {
       Alert.alert("Error", error);
     }
   }, [error]);
+
+  useEffect(() => {
+    if (miradorData && selectedMarkerRef.current) {
+      setTimeout(() => {
+        selectedMarkerRef.current?.showCallout();
+      }, 500);
+    }
+  }, [miradorData]);
 
   return (
     <View style={styles.container}>

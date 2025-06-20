@@ -8,18 +8,19 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { miradores } from "../../data/Mirdaores";
+import { useMiradores } from "../store";
 import { colors } from "../utils/theme";
 
 export default function HomeScreen() {
   const router = useRouter();
+  const miradores = useMiradores();
 
   return (
     <View style={styles.container}>
       <FlatList
         data={miradores}
         numColumns={2}
-        keyExtractor={(_, i) => i.toString()}
+        keyExtractor={(item) => item.key}
         contentContainerStyle={styles.listContainer}
         renderItem={({ item }) => (
           <TouchableOpacity

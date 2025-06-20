@@ -2,7 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { router, usePathname } from "expo-router";
 import React, { useCallback, useMemo } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { USER } from "../../data/User";
+import { useUser } from "../store";
 import { colors } from "../utils/theme";
 
 interface TopbarProps {
@@ -11,6 +11,7 @@ interface TopbarProps {
 
 const Topbar = React.memo(({ title }: TopbarProps) => {
   const pathname = usePathname();
+  const user = useUser();
 
   const nonProfileAvatar = useMemo(() => ["/Profile", "/Settings"], []);
   const showAvatar = useMemo(
@@ -33,9 +34,9 @@ const Topbar = React.memo(({ title }: TopbarProps) => {
   return (
     <View style={styles.container}>
       <View style={styles.avatarContainer}>
-        {showAvatar && (
+        {showAvatar && user && (
           <TouchableOpacity onPress={handleProfilePress}>
-            <Image source={{ uri: USER.avatar }} style={styles.avatar} />
+            <Image source={{ uri: user.avatar }} style={styles.avatar} />
           </TouchableOpacity>
         )}
       </View>

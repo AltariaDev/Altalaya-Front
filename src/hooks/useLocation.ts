@@ -26,14 +26,12 @@ export const useLocation = (): UseLocationReturn => {
       setIsLoading(true);
       setError(null);
 
-      // Vérifier les permissions
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
         setError("Permission to access location was denied");
         return;
       }
 
-      // Essayer d'abord la dernière position connue (plus rapide)
       const lastKnownLocation = await Location.getLastKnownPositionAsync({
         maxAge: PERFORMANCE_CONFIG.LOCATION_CONFIG.maxAge,
       });
@@ -48,7 +46,6 @@ export const useLocation = (): UseLocationReturn => {
         return;
       }
 
-      // Fallback vers la position actuelle
       const currentLocation = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.Balanced,
         timeInterval: PERFORMANCE_CONFIG.LOCATION_CONFIG.timeInterval,
@@ -74,7 +71,6 @@ export const useLocation = (): UseLocationReturn => {
   }, [getLocation]);
 
   useEffect(() => {
-    // Délai pour éviter de bloquer le rendu initial
     const timer = setTimeout(() => {
       getLocation();
     }, 100);

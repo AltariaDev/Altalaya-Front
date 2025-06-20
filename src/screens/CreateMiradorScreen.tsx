@@ -4,7 +4,6 @@ import * as Location from "expo-location";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-  Alert,
   Image,
   ScrollView,
   StyleSheet,
@@ -14,6 +13,8 @@ import {
   View,
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
+import { useErrorHandler } from "../hooks/useErrorHandler";
+import { useAppStore } from "../store";
 import { colors } from "../utils/theme";
 
 export default function CreateMiradorScreen() {
@@ -32,19 +33,20 @@ export default function CreateMiradorScreen() {
     longitudeDelta: 0.0421,
   });
 
+  const { addMirador, setLoading } = useAppStore();
+  const { handleError, handleAsyncError } = useErrorHandler();
+
   useEffect(() => {
     getCurrentLocation();
   }, []);
 
   const getCurrentLocation = async () => {
-    try {
+    await handleAsyncError(async () => {
+      setLoading(true);
+
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        Alert.alert(
-          "Permisos",
-          "Se necesitan permisos de ubicación para esta función"
-        );
-        return;
+        throw new Error("Se necesitan permisos de ubicación para esta función");
       }
 
       const location = await Location.getCurrentPositionAsync({});
@@ -59,16 +61,16 @@ export default function CreateMiradorScreen() {
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
       });
-    } catch (error) {
-      console.log("Error getting location:", error);
-    }
+    }, "Error al obtener la ubicación");
+
+    setLoading(false);
   };
 
   const handleMapPress = async (event: any) => {
     const { latitude, longitude } = event.nativeEvent.coordinate;
     setSelectedLocation({ latitude, longitude });
 
-    try {
+    await handleAsyncError(async () => {
       const reverseGeocode = await Location.reverseGeocodeAsync({
         latitude,
         longitude,
@@ -90,33 +92,51 @@ export default function CreateMiradorScreen() {
           address: addressString,
         }));
       }
-    } catch (error) {
-      console.log("Error reverse geocoding:", error);
-    }
+    }, "Error al obtener la dirección");
   };
 
   const pickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [16, 9],
-      quality: 1,
-    });
+    await handleAsyncError(async () => {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [16, 9],
+        quality: 1,
+      });
 
-    if (!result.canceled) {
-      setImage(result.assets[0].uri);
-    }
+      if (!result.canceled) {
+        setImage(result.assets[0].uri);
+      }
+    }, "Error al seleccionar la imagen");
   };
 
-  const handleSubmit = () => {
-    // TODO: Implement post creation with location data
-    console.log("Creating mirador with:", {
-      title,
-      description,
-      location: selectedLocation,
-      image,
-    });
-    router.back();
+  const handleSubmit = async () => {
+    if (!title || !image || !selectedLocation) {
+      handleError("Por favor completa todos los campos");
+      return;
+    }
+
+    await handleAsyncError(async () => {
+      setLoading(true);
+
+      const newMirador = {
+        key: Date.now().toString(),
+        title,
+        description,
+        image,
+        views: "0",
+        coordinate: {
+          latitude: selectedLocation.latitude,
+          longitude: selectedLocation.longitude,
+        },
+        address: selectedLocation.address,
+      };
+
+      addMirador(newMirador);
+      router.back();
+    }, "Error al crear el mirador");
+
+    setLoading(false);
   };
 
   return (
@@ -165,27 +185,32 @@ export default function CreateMiradorScreen() {
             <Text style={styles.label}>Título</Text>
             <TextInput
               style={styles.input}
-              placeholder="Nombre del mirador"
-              placeholderTextColor={colors.text.secondary}
               value={title}
               onChangeText={setTitle}
+              placeholder="Nombre del mirador"
+              placeholderTextColor={colors.text.secondary}
+            />
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Descripción</Text>
+            <TextInput
+              style={[styles.input, styles.textArea]}
+              value={description}
+              onChangeText={setDescription}
+              placeholder="Describe este mirador..."
+              placeholderTextColor={colors.text.secondary}
+              multiline
+              numberOfLines={4}
+              textAlignVertical="top"
             />
           </View>
 
           <View style={styles.mapContainer}>
-            <View style={styles.mapHeader}>
-              <Text style={styles.mapTitle}>Selecciona la ubicación</Text>
-              <TouchableOpacity
-                onPress={getCurrentLocation}
-                style={styles.currentLocationButton}
-              >
-                <Ionicons name="locate" size={20} color={colors.text.primary} />
-                <Text style={styles.currentLocationText}>Mi ubicación</Text>
-              </TouchableOpacity>
-            </View>
+            <Text style={styles.label}>Ubicación</Text>
             <MapView
               style={styles.map}
-              initialRegion={region}
+              region={region}
               onPress={handleMapPress}
             >
               {selectedLocation && (
@@ -194,24 +219,10 @@ export default function CreateMiradorScreen() {
                     latitude: selectedLocation.latitude,
                     longitude: selectedLocation.longitude,
                   }}
-                  title="Ubicación seleccionada"
-                  description={selectedLocation.address}
+                  pinColor={colors.accent}
                 />
               )}
             </MapView>
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Descripción</Text>
-            <TextInput
-              style={[styles.input, styles.textArea]}
-              placeholder="Describe el mirador..."
-              placeholderTextColor={colors.text.secondary}
-              multiline
-              numberOfLines={4}
-              value={description}
-              onChangeText={setDescription}
-            />
           </View>
         </View>
       </ScrollView>
@@ -237,7 +248,6 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: colors.background.secondary,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -291,7 +301,7 @@ const styles = StyleSheet.create({
     color: colors.text.primary,
     fontSize: 16,
     fontWeight: "600",
-    marginBottom: 8,
+    margin: 8,
   },
   input: {
     backgroundColor: colors.background.secondary,
@@ -350,5 +360,11 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
+  },
+  addressText: {
+    color: colors.text.primary,
+    fontSize: 16,
+    marginTop: 12,
+    textAlign: "center",
   },
 });

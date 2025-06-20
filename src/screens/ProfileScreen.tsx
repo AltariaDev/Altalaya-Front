@@ -16,7 +16,7 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
-import { USER, USER_POSTS } from "../../data/User";
+import { useMiradores, useUser } from "../store";
 import { colors } from "../utils/theme";
 
 const AnimatedTouchableOpacity =
@@ -25,7 +25,12 @@ const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
 
 export default function ProfileScreen() {
   const router = useRouter();
+  const user = useUser();
+  const miradores = useMiradores();
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+
+  // Filter user's miradores (for now, just show all miradores)
+  const userPosts = miradores.slice(0, 6); // Show first 6 as user posts
 
   // Animation values
   const headerOpacity = useSharedValue(0);
@@ -34,7 +39,7 @@ export default function ProfileScreen() {
   const statsOpacity = useSharedValue(0);
   const contentOpacity = useSharedValue(0);
   const contentTranslateY = useSharedValue(50);
-  const postAnimations = USER_POSTS.map(() => ({
+  const postAnimations = userPosts.map(() => ({
     scale: useSharedValue(0.9),
     opacity: useSharedValue(0),
   }));
@@ -102,104 +107,91 @@ export default function ProfileScreen() {
     setViewMode(viewMode === "grid" ? "list" : "grid");
   };
 
+  if (!user) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.errorText}>Usuario no encontrado</Text>
+      </View>
+    );
+  }
+
   return (
-    <View style={styles.container}>
-      <AnimatedScrollView showsVerticalScrollIndicator={false}>
-        <Animated.View style={[styles.header, headerAnimatedStyle]}>
-          <View style={styles.headerContent}>
-            <Animated.Image
-              source={{ uri: USER.avatar }}
-              style={[styles.avatar, avatarAnimatedStyle]}
+    <AnimatedScrollView
+      style={styles.container}
+      showsVerticalScrollIndicator={false}
+    >
+      {/* Header */}
+      <Animated.View style={[styles.header, headerAnimatedStyle]}>
+        <Animated.Image
+          source={{ uri: user.avatar }}
+          style={[styles.avatar, avatarAnimatedStyle]}
+        />
+        <Text style={styles.name}>{user.name}</Text>
+        <Text style={styles.username}>{user.username}</Text>
+        <Text style={styles.bio}>{user.bio}</Text>
+      </Animated.View>
+
+      {/* Stats */}
+      <Animated.View style={[styles.stats, statsAnimatedStyle]}>
+        <View style={styles.statItem}>
+          <Text style={styles.statNumber}>{user.posts}</Text>
+          <Text style={styles.statLabel}>Miradores</Text>
+        </View>
+        <View style={styles.statItem}>
+          <Text style={styles.statNumber}>{user.followers}</Text>
+          <Text style={styles.statLabel}>Seguidores</Text>
+        </View>
+        <View style={styles.statItem}>
+          <Text style={styles.statNumber}>{user.following}</Text>
+          <Text style={styles.statLabel}>Siguiendo</Text>
+        </View>
+      </Animated.View>
+
+      {/* Content */}
+      <Animated.View style={[styles.content, contentAnimatedStyle]}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Mis Miradores</Text>
+          <TouchableOpacity onPress={handleViewMode}>
+            <Ionicons
+              name={viewMode === "grid" ? "grid-outline" : "list-outline"}
+              size={24}
+              color={colors.text.primary}
             />
-            <Animated.View style={[styles.statsContainer, statsAnimatedStyle]}>
-              <View style={styles.statItem}>
-                <Text style={styles.statNumber}>{USER.posts}</Text>
-                <Text style={styles.statLabel}>Posts</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View
+          style={[styles.postsGrid, viewMode === "list" && styles.postsList]}
+        >
+          {userPosts.map((post, index) => (
+            <AnimatedTouchableOpacity
+              key={post.key}
+              style={[
+                styles.postCard,
+                viewMode === "list" && styles.postCardList,
+                createPostAnimatedStyle(index),
+              ]}
+              onPress={() =>
+                router.push({
+                  pathname: "/MiradorDetail",
+                  params: {
+                    mirador: JSON.stringify(post),
+                  },
+                })
+              }
+            >
+              <Image source={{ uri: post.image }} style={styles.postImage} />
+              <View style={styles.postInfo}>
+                <Text style={styles.postTitle} numberOfLines={2}>
+                  {post.title}
+                </Text>
+                <Text style={styles.postViews}>{post.views} views</Text>
               </View>
-              <View style={styles.statItem}>
-                <Text style={styles.statNumber}>{USER.followers}</Text>
-                <Text style={styles.statLabel}>Seguidores</Text>
-              </View>
-              <View style={styles.statItem}>
-                <Text style={styles.statNumber}>{USER.following}</Text>
-                <Text style={styles.statLabel}>Siguiendo</Text>
-              </View>
-            </Animated.View>
-          </View>
-
-          <View style={styles.userInfo}>
-            <Text style={styles.name}>{USER.name}</Text>
-            <Text style={styles.username}>{USER.username}</Text>
-            <Text style={styles.bio}>{USER.bio}</Text>
-          </View>
-
-          <AnimatedTouchableOpacity
-            style={styles.editButton}
-            onPress={() => router.push("/EditProfile")}
-          >
-            <Text style={styles.editButtonText}>Editar Perfil</Text>
-          </AnimatedTouchableOpacity>
-        </Animated.View>
-
-        <Animated.View style={[styles.content, contentAnimatedStyle]}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Mis Miradores</Text>
-            <TouchableOpacity onPress={handleViewMode}>
-              <Ionicons
-                name={viewMode === "grid" ? "grid-outline" : "list-outline"}
-                size={24}
-                color={colors.text.primary}
-              />
-            </TouchableOpacity>
-          </View>
-
-          <View
-            style={[styles.postsGrid, viewMode === "list" && styles.postsList]}
-          >
-            {USER_POSTS.map((post, index) => (
-              <AnimatedTouchableOpacity
-                key={post.id}
-                style={[
-                  styles.postCard,
-                  viewMode === "list" && styles.postCardList,
-                  createPostAnimatedStyle(index),
-                ]}
-                onPress={() =>
-                  router.push({
-                    pathname: "/MiradorDetail",
-                    params: {
-                      mirador: JSON.stringify(post),
-                    },
-                  })
-                }
-              >
-                <Image source={{ uri: post.image }} style={styles.postImage} />
-                <View style={styles.postOverlay}>
-                  <View style={styles.postStats}>
-                    <View style={styles.postStat}>
-                      <Ionicons
-                        name="heart"
-                        size={16}
-                        color={colors.text.primary}
-                      />
-                      <Text style={styles.postStatText}>{post.likes}</Text>
-                    </View>
-                    <View style={styles.postStat}>
-                      <Ionicons
-                        name="chatbubble"
-                        size={16}
-                        color={colors.text.primary}
-                      />
-                      <Text style={styles.postStatText}>{post.comments}</Text>
-                    </View>
-                  </View>
-                </View>
-              </AnimatedTouchableOpacity>
-            ))}
-          </View>
-        </Animated.View>
-      </AnimatedScrollView>
-    </View>
+            </AnimatedTouchableOpacity>
+          ))}
+        </View>
+      </Animated.View>
+    </AnimatedScrollView>
   );
 }
 
@@ -213,36 +205,10 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.background.secondary,
   },
-  headerContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 20,
-  },
   avatar: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    marginRight: 20,
-  },
-  statsContainer: {
-    flex: 1,
-    flexDirection: "row",
-    justifyContent: "space-around",
-  },
-  statItem: {
-    alignItems: "center",
-  },
-  statNumber: {
-    color: colors.text.primary,
-    fontSize: 20,
-    fontWeight: "700",
-    marginBottom: 4,
-  },
-  statLabel: {
-    color: colors.text.secondary,
-    fontSize: 14,
-  },
-  userInfo: {
     marginBottom: 20,
   },
   name: {
@@ -261,16 +227,23 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 22,
   },
-  editButton: {
-    backgroundColor: colors.background.secondary,
-    paddingVertical: 12,
-    borderRadius: 20,
+  stats: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginBottom: 20,
+  },
+  statItem: {
     alignItems: "center",
   },
-  editButtonText: {
+  statNumber: {
     color: colors.text.primary,
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: 20,
+    fontWeight: "700",
+    marginBottom: 4,
+  },
+  statLabel: {
+    color: colors.text.secondary,
+    fontSize: 14,
   },
   content: {
     padding: 20,
@@ -308,31 +281,24 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     backgroundColor: colors.background.secondary,
   },
-  postOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0,0,0,0.2)",
-    borderRadius: 16,
-    justifyContent: "flex-end",
+  postInfo: {
     padding: 12,
   },
-  postStats: {
-    flexDirection: "row",
-    gap: 16,
-  },
-  postStat: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-  postStatText: {
+  postTitle: {
     color: colors.text.primary,
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: "600",
+    marginBottom: 4,
   },
-  settingsButton: {
-    backgroundColor: colors.background.secondary,
-    padding: 12,
-    borderRadius: 20,
-    alignItems: "center",
+  postViews: {
+    color: colors.text.secondary,
+    fontSize: 14,
+  },
+  errorText: {
+    color: colors.text.primary,
+    fontSize: 16,
+    fontWeight: "600",
+    textAlign: "center",
+    marginTop: 20,
   },
 });

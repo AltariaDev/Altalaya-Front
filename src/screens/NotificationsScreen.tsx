@@ -8,7 +8,11 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { NOTIFICATIONS } from "../../data/Notification";
+import {
+  markNotificationAsRead,
+  useNotifications,
+  useUnreadCount,
+} from "../store";
 import { colors } from "../utils/theme";
 
 const getNotificationIcon = (type: string) => {
@@ -30,59 +34,81 @@ const getNotificationIcon = (type: string) => {
   }
 };
 
-const getNotificationText = (notification: any) => {
-  switch (notification.type) {
-    case "like":
-      return "le dio me gusta a tu mirador";
-    case "comment":
-      return "comentó en tu mirador";
-    case "follow":
-      return "empezó a seguirte";
-    default:
-      return "";
-  }
-};
-
 export default function NotificationsScreen() {
+  const notifications = useNotifications();
+  const unreadCount = useUnreadCount();
+
+  const handleNotificationPress = (id: string) => {
+    markNotificationAsRead(id);
+  };
+
+  const renderNotification = (notification: any) => (
+    <TouchableOpacity
+      key={notification.id}
+      style={[
+        styles.notificationItem,
+        !notification.read && styles.unreadNotification,
+      ]}
+      onPress={() => handleNotificationPress(notification.id)}
+    >
+      <View style={styles.notificationContent}>
+        <View style={styles.notificationHeader}>
+          <Image
+            source={{ uri: notification.user.avatar }}
+            style={styles.userAvatar}
+          />
+          <View style={styles.notificationInfo}>
+            <Text style={styles.userName}>{notification.user.name}</Text>
+            <Text style={styles.notificationText}>
+              {notification.type === "like" && "le gustó tu mirador"}
+              {notification.type === "comment" && "comentó en tu mirador"}
+              {notification.type === "follow" && "empezó a seguirte"}
+            </Text>
+            {notification.comment && (
+              <Text style={styles.commentText}>"{notification.comment}"</Text>
+            )}
+            <Text style={styles.timeText}>{notification.time}</Text>
+          </View>
+        </View>
+        {notification.post && (
+          <Image
+            source={{ uri: notification.post.image }}
+            style={styles.postImage}
+          />
+        )}
+      </View>
+    </TouchableOpacity>
+  );
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Notificaciones</Text>
-        <TouchableOpacity style={styles.markAllButton}>
-          <Text style={styles.markAllText}>Marcar todas como leídas</Text>
-        </TouchableOpacity>
+        {unreadCount > 0 && (
+          <View style={styles.badge}>
+            <Text style={styles.badgeText}>{unreadCount}</Text>
+          </View>
+        )}
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
-        {NOTIFICATIONS.map((notification) => (
-          <TouchableOpacity key={notification.id} style={styles.notification}>
-            <Image
-              source={{ uri: notification.user.avatar }}
-              style={styles.avatar}
+        {notifications.length === 0 ? (
+          <View style={styles.emptyState}>
+            <Ionicons
+              name="notifications-off"
+              size={64}
+              color={colors.text.secondary}
             />
-            <View style={styles.content}>
-              <View style={styles.textContainer}>
-                <Text style={styles.name}>{notification.user.name}</Text>
-                <Text style={styles.action}>
-                  {getNotificationText(notification)}
-                </Text>
-                {notification.comment && (
-                  <Text style={styles.comment}>{notification.comment}</Text>
-                )}
-                <Text style={styles.time}>{notification.time}</Text>
-              </View>
-              {notification.post && (
-                <Image
-                  source={{ uri: notification.post.image }}
-                  style={styles.postImage}
-                />
-              )}
-            </View>
-            <View style={styles.iconContainer}>
-              {getNotificationIcon(notification.type)}
-            </View>
-          </TouchableOpacity>
-        ))}
+            <Text style={styles.emptyStateTitle}>No hay notificaciones</Text>
+            <Text style={styles.emptyStateText}>
+              Cuando recibas notificaciones, aparecerán aquí
+            </Text>
+          </View>
+        ) : (
+          <View style={styles.notificationsList}>
+            {notifications.map(renderNotification)}
+          </View>
+        )}
       </ScrollView>
     </View>
   );
@@ -108,57 +134,61 @@ const styles = StyleSheet.create({
     color: colors.text.primary,
     letterSpacing: -0.5,
   },
-  markAllButton: {
-    backgroundColor: colors.background.secondary,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+  badge: {
+    backgroundColor: colors.error,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     borderRadius: 16,
+    marginLeft: 12,
   },
-  markAllText: {
-    color: colors.text.primary,
+  badgeText: {
+    color: colors.background.primary,
     fontSize: 14,
     fontWeight: "600",
   },
-  notification: {
+  notificationItem: {
     flexDirection: "row",
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: colors.background.secondary,
   },
-  avatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    marginRight: 16,
-  },
-  content: {
+  notificationContent: {
     flex: 1,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
-  textContainer: {
-    flex: 1,
+  notificationHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  userAvatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     marginRight: 16,
   },
-  name: {
+  notificationInfo: {
+    flex: 1,
+  },
+  userName: {
     color: colors.text.primary,
     fontSize: 16,
     fontWeight: "600",
     marginBottom: 4,
   },
-  action: {
+  notificationText: {
     color: colors.text.secondary,
     fontSize: 16,
     marginBottom: 4,
   },
-  comment: {
+  commentText: {
     color: colors.text.primary,
     fontSize: 16,
     marginBottom: 4,
     fontStyle: "italic",
   },
-  time: {
+  timeText: {
     color: colors.text.secondary,
     fontSize: 14,
   },
@@ -168,13 +198,27 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: colors.background.secondary,
   },
-  iconContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: colors.background.secondary,
+  emptyState: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    marginLeft: 12,
+  },
+  emptyStateTitle: {
+    color: colors.text.primary,
+    fontSize: 24,
+    fontWeight: "700",
+    marginTop: 20,
+    marginBottom: 16,
+  },
+  emptyStateText: {
+    color: colors.text.secondary,
+    fontSize: 16,
+    textAlign: "center",
+  },
+  notificationsList: {
+    flex: 1,
+  },
+  unreadNotification: {
+    backgroundColor: colors.background.secondary,
   },
 });
