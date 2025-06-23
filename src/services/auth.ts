@@ -16,72 +16,88 @@ export interface RegisterData {
 export interface User {
   id: string;
   username: string;
+  name: string;
   email: string;
   bio?: string;
-  avatar_url?: string;
-  created_at: string;
-  updated_at: string;
+  avatar?: string;
+  createdAt: string;
+  updatedAt: string;
+  followers: string[];
+  following: string[];
+  posts: number;
 }
 
 export interface AuthResponse {
-  user: User;
   access_token: string;
 }
 
 export const authService = {
-  // Login user
   async login(data: LoginData): Promise<AuthResponse> {
     const response = await api.post("/auth/login", data);
-    const { user, access_token } = response.data;
+    const { access_token } = response.data;
 
-    // Store token and user data
-    await AsyncStorage.setItem("authToken", access_token);
-    await AsyncStorage.setItem("user", JSON.stringify(user));
+    const cookies = response.headers["set-cookie"];
+    let cookieToken = access_token;
 
-    return response.data;
+    if (cookies) {
+      const accessTokenCookie = cookies.find((cookie) =>
+        cookie.includes("access_token=")
+      );
+      if (accessTokenCookie) {
+        const tokenMatch = accessTokenCookie.match(/access_token=([^;]+)/);
+        if (tokenMatch) {
+          cookieToken = tokenMatch[1];
+        }
+      }
+    }
+
+    await AsyncStorage.setItem("authToken", cookieToken);
+
+    return { access_token: cookieToken };
   },
 
-  // Register user
   async register(data: RegisterData): Promise<AuthResponse> {
     const response = await api.post("/auth/register", data);
-    const { user, access_token } = response.data;
+    const { access_token } = response.data;
 
-    // Store token and user data
-    await AsyncStorage.setItem("authToken", access_token);
-    await AsyncStorage.setItem("user", JSON.stringify(user));
+    const cookies = response.headers["set-cookie"];
+    let cookieToken = access_token;
 
-    return response.data;
+    if (cookies) {
+      const accessTokenCookie = cookies.find((cookie) =>
+        cookie.includes("access_token=")
+      );
+      if (accessTokenCookie) {
+        const tokenMatch = accessTokenCookie.match(/access_token=([^;]+)/);
+        if (tokenMatch) {
+          cookieToken = tokenMatch[1];
+        }
+      }
+    }
+
+    await AsyncStorage.setItem("authToken", cookieToken);
+
+    return { access_token: cookieToken };
   },
 
-  // Get current user profile
   async getCurrentUser(): Promise<User> {
-    const response = await api.get("/auth/me");
+    const userData = await AsyncStorage.getItem("user");
+    if (userData) {
+      return JSON.parse(userData);
+    }
+
+    const response = await api.get("/users/profile/me");
     const user = response.data;
 
-    // Update stored user data
     await AsyncStorage.setItem("user", JSON.stringify(user));
 
     return user;
   },
 
-  // Logout user
   async logout(): Promise<void> {
     await AsyncStorage.removeItem("authToken");
-    await AsyncStorage.removeItem("user");
   },
 
-  // Get stored user data
-  async getStoredUser(): Promise<User | null> {
-    try {
-      const userData = await AsyncStorage.getItem("user");
-      return userData ? JSON.parse(userData) : null;
-    } catch (error) {
-      console.error("Error getting stored user:", error);
-      return null;
-    }
-  },
-
-  // Check if user is authenticated
   async isAuthenticated(): Promise<boolean> {
     try {
       const token = await AsyncStorage.getItem("authToken");
@@ -91,7 +107,6 @@ export const authService = {
     }
   },
 
-  // Get auth token
   async getToken(): Promise<string | null> {
     try {
       return await AsyncStorage.getItem("authToken");

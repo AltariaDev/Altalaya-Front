@@ -1,3 +1,5 @@
+import { usersService } from "@/services/users";
+import { useUser } from "@/store/authStore";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
@@ -13,20 +15,13 @@ import {
 } from "react-native";
 import { colors } from "../utils/theme";
 
-const USER = {
-  name: "Alex Johnson",
-  username: "@alexj",
-  bio: "Fotógrafo y explorador de miradores urbanos. Compartiendo las mejores vistas de la ciudad.",
-  email: "alex@example.com",
-  avatar: "https://i.pravatar.cc/300?img=12",
-};
-
 export default function EditProfileScreen() {
-  const [name, setName] = useState(USER.name);
-  const [username, setUsername] = useState(USER.username);
-  const [bio, setBio] = useState(USER.bio);
-  const [email, setEmail] = useState(USER.email);
-  const [avatar, setAvatar] = useState(USER.avatar);
+  const user = useUser();
+  const [avatar, setAvatar] = useState(user?.avatar);
+  const [name, setName] = useState(user?.name);
+  const [username, setUsername] = useState(user?.username);
+  const [bio, setBio] = useState(user?.bio);
+  const [email, setEmail] = useState(user?.email);
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -41,9 +36,20 @@ export default function EditProfileScreen() {
     }
   };
 
-  const handleSave = () => {
-    // TODO: Implement profile update
-    router.back();
+  const handleSave = async () => {
+    try {
+      const response = await usersService.updateProfile({
+        name,
+        username,
+        email,
+        bio,
+        avatar,
+      });
+      console.log("response", response);
+      router.back();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (

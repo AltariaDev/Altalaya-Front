@@ -9,7 +9,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { colors } from "../../../utils/theme";
 
-const POPULAR_SEARCHES = [
+const POPULAR_MIRADORES_SEARCHES = [
   "Golden Gate Bridge",
   "San Francisco",
   "Cafeteria",
@@ -17,14 +17,33 @@ const POPULAR_SEARCHES = [
   "Parque",
 ];
 
+const POPULAR_USERS_SEARCHES = [
+  "Fotógrafos",
+  "Viajeros",
+  "Arquitectos",
+  "Artistas",
+  "Exploradores",
+];
+
 const AnimatedTouchableOpacity =
   Animated.createAnimatedComponent(TouchableOpacity);
 
-export default function PopularSearch() {
+interface PopularSearchProps {
+  onSearch?: (query: string, type: "miradores" | "users") => void;
+  searchType: "miradores" | "users";
+}
+
+export default function PopularSearch({
+  onSearch,
+  searchType,
+}: PopularSearchProps) {
   const titleOpacity = useSharedValue(0);
   const titleTranslateY = useSharedValue(30);
 
-  // Create shared values for each button individually
+  const toggleScale = useSharedValue(0.8);
+  const toggleOpacity = useSharedValue(0);
+  const toggleTranslateY = useSharedValue(50);
+
   const button1Scale = useSharedValue(0.8);
   const button1Opacity = useSharedValue(0);
   const button1TranslateY = useSharedValue(50);
@@ -45,7 +64,6 @@ export default function PopularSearch() {
   const button5Opacity = useSharedValue(0);
   const button5TranslateY = useSharedValue(50);
 
-  // Group animations
   const buttonAnimations = [
     {
       scale: button1Scale,
@@ -74,34 +92,53 @@ export default function PopularSearch() {
     },
   ];
 
+  const currentSearches =
+    searchType === "miradores"
+      ? POPULAR_MIRADORES_SEARCHES
+      : POPULAR_USERS_SEARCHES;
+
   useEffect(() => {
-    // Animation du titre
     titleOpacity.value = withTiming(1, { duration: 800 });
     titleTranslateY.value = withSpring(0, { damping: 15, stiffness: 150 });
 
-    // Animations en cascade des boutons
+    toggleOpacity.value = withDelay(50, withTiming(1, { duration: 600 }));
+    toggleScale.value = withDelay(
+      50,
+      withSpring(1, { damping: 15, stiffness: 150 })
+    );
+    toggleTranslateY.value = withDelay(
+      50,
+      withSpring(0, { damping: 15, stiffness: 150 })
+    );
+
     buttonAnimations.forEach((animation, index) => {
       animation.opacity.value = withDelay(
-        index * 100,
+        (index + 1) * 100,
         withTiming(1, { duration: 600 })
       );
       animation.scale.value = withDelay(
-        index * 100,
+        (index + 1) * 100,
         withSpring(1, { damping: 15, stiffness: 150 })
       );
       animation.translateY.value = withDelay(
-        index * 100,
+        (index + 1) * 100,
         withSpring(0, { damping: 15, stiffness: 150 })
       );
     });
-  }, [buttonAnimations, titleOpacity, titleTranslateY]);
+  }, [
+    buttonAnimations,
+    titleOpacity,
+    titleTranslateY,
+    toggleOpacity,
+    toggleScale,
+    toggleTranslateY,
+  ]);
 
   const titleAnimatedStyle = useAnimatedStyle(() => ({
     opacity: titleOpacity.value,
     transform: [{ translateY: titleTranslateY.value }],
   }));
 
-  // Create animated styles for each button
   const button1AnimatedStyle = useAnimatedStyle(() => ({
     opacity: button1Opacity.value,
     transform: [
@@ -164,22 +201,35 @@ export default function PopularSearch() {
     });
   };
 
+  const handleSearchPress = (query: string) => {
+    onSearch?.(query, searchType);
+  };
+
   return (
     <>
-      <Animated.Text
-        style={[
-          {
-            color: colors.text.primary,
-            fontWeight: "700",
-            fontSize: 26,
-            marginBottom: 20,
-            letterSpacing: -0.5,
-          },
-          titleAnimatedStyle,
-        ]}
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: 20,
+        }}
       >
-        Busquedas populares
-      </Animated.Text>
+        <Animated.Text
+          style={[
+            {
+              color: colors.text.primary,
+              fontWeight: "700",
+              fontSize: 26,
+              letterSpacing: -0.5,
+            },
+            titleAnimatedStyle,
+          ]}
+        >
+          Busquedas populares
+        </Animated.Text>
+      </View>
+
       <View
         style={{
           flexDirection: "row",
@@ -188,7 +238,7 @@ export default function PopularSearch() {
           marginBottom: 32,
         }}
       >
-        {POPULAR_SEARCHES.map((item, index) => (
+        {currentSearches.map((item, index) => (
           <AnimatedTouchableOpacity
             key={item}
             style={[
@@ -211,6 +261,7 @@ export default function PopularSearch() {
             ]}
             onPressIn={() => handlePressIn(index)}
             onPressOut={() => handlePressOut(index)}
+            onPress={() => handleSearchPress(item)}
             activeOpacity={1}
           >
             <Text

@@ -8,7 +8,7 @@ import Animated, {
   withDelay,
   withSpring,
 } from "react-native-reanimated";
-import { useMiradoresStore } from "../../../store";
+import { useMiradores } from "../../../store";
 import { PERFORMANCE_CONFIG } from "../../../utils/performance";
 import { colors } from "../../../utils/theme";
 import OptimizedImage from "../../OptimizedImage";
@@ -105,7 +105,7 @@ const HighlightedCard = React.memo(
 HighlightedCard.displayName = "HighlightedCard";
 
 const Highlighted = React.memo(() => {
-  const miradores = useMiradoresStore();
+  const miradores = useMiradores();
 
   const titleOpacity = useSharedValue(0);
   const titleTranslateY = useSharedValue(30);

@@ -86,4 +86,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "500",
   },
+  centerContent: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    color: colors.text.primary,
+    fontSize: 18,
+    fontWeight: "600",
+  },
 });

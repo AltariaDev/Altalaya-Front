@@ -57,7 +57,6 @@ const RegisterScreen = () => {
     animation.start();
   }, [fadeAnim, slideAnim, scaleAnim]);
 
-  // Show error alert when there's an error
   useEffect(() => {
     if (error) {
       Alert.alert("Error", error);
@@ -127,7 +126,6 @@ const RegisterScreen = () => {
         },
       ]);
     } catch (error) {
-      // Error is handled by the store and shown in useEffect
       console.error("Register error:", error);
     }
   };

@@ -1,3 +1,4 @@
+import { authService } from "@/services/auth";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
@@ -132,7 +133,10 @@ export default function SettingsScreen() {
         {
           text: "Cerrar Sesión",
           style: "destructive",
-          onPress: () => router.replace("/"),
+          onPress: () => {
+            authService.logout();
+            router.replace("/Login");
+          },
         },
       ]
     );

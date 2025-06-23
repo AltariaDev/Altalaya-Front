@@ -1,8 +1,8 @@
+import { useAuthStore } from "@/store/authStore";
 import { Ionicons } from "@expo/vector-icons";
 import { router, usePathname } from "expo-router";
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { useUser } from "../store";
 import { colors } from "../utils/theme";
 
 interface TopbarProps {
@@ -11,7 +11,12 @@ interface TopbarProps {
 
 const Topbar = React.memo(({ title }: TopbarProps) => {
   const pathname = usePathname();
-  const user = useUser();
+  const loadUser = useAuthStore((state) => state.loadUser);
+  const user = useAuthStore((state) => state.user);
+
+  useEffect(() => {
+    loadUser();
+  }, []);
 
   const nonProfileAvatar = useMemo(() => ["/Profile", "/Settings"], []);
   const showAvatar = useMemo(

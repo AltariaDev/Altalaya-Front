@@ -18,7 +18,6 @@ export default function MiradorDetail() {
   const { mirador } = useLocalSearchParams();
   const miradorData = JSON.parse(mirador as string);
 
-  console.log(miradorData.image);
   return (
     <View style={styles.container}>
       <ScrollView

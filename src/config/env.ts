@@ -1,12 +1,12 @@
 export const ENV = {
   // API Configuration
   API_BASE_URL: __DEV__
-    ? "http://localhost:3000"
+    ? "http://192.168.1.143:3000"
     : "https://your-production-api.com",
 
   // WebSocket Configuration
   WS_BASE_URL: __DEV__
-    ? "ws://localhost:3000"
+    ? "ws://192.168.1.143:3000"
     : "wss://your-production-api.com",
 
   // Cloudinary Configuration (if needed on frontend)

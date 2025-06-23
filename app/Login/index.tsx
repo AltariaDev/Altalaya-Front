@@ -1,3 +1,4 @@
+import { useAuthStore } from "@/store/authStore";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
@@ -13,7 +14,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useAuthStore } from "../../src/store";
 import { colors, theme } from "../../src/utils/theme";
 
 const LoginScreen = () => {

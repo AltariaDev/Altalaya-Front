@@ -1,14 +1,3 @@
-export const USER = {
-  name: "Alex Johnson",
-  username: "@alexj",
-  bio: "Fotógrafo y explorador de miradores urbanos. Compartiendo las mejores vistas de la ciudad.",
-  followers: "2.4k",
-  following: "1.2k",
-  posts: 48,
-  avatar: "https://i.pravatar.cc/300?img=12",
-};
-
-
 export const USER_POSTS = [
   {
     id: "1",
