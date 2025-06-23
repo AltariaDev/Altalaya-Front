@@ -15,25 +15,6 @@ import {
 } from "../store";
 import { colors } from "../utils/theme";
 
-const getNotificationIcon = (type: string) => {
-  switch (type) {
-    case "like":
-      return <Ionicons name="heart" size={20} color={colors.error} />;
-    case "comment":
-      return <Ionicons name="chatbubble" size={20} color={colors.info} />;
-    case "follow":
-      return <Ionicons name="person-add" size={20} color={colors.success} />;
-    default:
-      return (
-        <Ionicons
-          name="notifications"
-          size={20}
-          color={colors.text.secondary}
-        />
-      );
-  }
-};
-
 export default function NotificationsScreen() {
   const notifications = useNotifications();
   const unreadCount = useUnreadCount();
@@ -65,7 +46,9 @@ export default function NotificationsScreen() {
               {notification.type === "follow" && "empezó a seguirte"}
             </Text>
             {notification.comment && (
-              <Text style={styles.commentText}>"{notification.comment}"</Text>
+              <Text style={styles.commentText}>
+                &ldquo;{notification.comment}&rdquo;
+              </Text>
             )}
             <Text style={styles.timeText}>{notification.time}</Text>
           </View>

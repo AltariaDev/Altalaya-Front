@@ -40,7 +40,7 @@ const Modal = ({ visible, onClose, children, title }: ModalProps) => {
       modalScale.value = withSpring(0.8, { damping: 15, stiffness: 150 });
       modalTranslateY.value = withSpring(50, { damping: 15, stiffness: 150 });
     }
-  }, [visible]);
+  }, [visible, backdropOpacity, modalScale, modalTranslateY]);
 
   const backdropAnimatedStyle = useAnimatedStyle(() => ({
     opacity: backdropOpacity.value,

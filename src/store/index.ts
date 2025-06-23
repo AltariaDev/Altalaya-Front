@@ -3,6 +3,10 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { miradores, MiradorType } from "../../data/Mirdaores";
 
+// Export new stores
+export { useAuthStore } from "./authStore";
+export { useMiradoresStore } from "./miradoresStore";
+
 export interface User {
   id: string;
   name: string;

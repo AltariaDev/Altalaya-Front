@@ -13,18 +13,22 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useAuthStore } from "../../src/store";
 import { colors, theme } from "../../src/utils/theme";
 
 const RegisterScreen = () => {
   const [formData, setFormData] = useState({
     name: "",
+    username: "",
     email: "",
     password: "",
     confirmPassword: "",
+    bio: "",
   });
-  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const { register, isLoading, error, clearError } = useAuthStore();
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
@@ -51,7 +55,15 @@ const RegisterScreen = () => {
     ]);
 
     animation.start();
-  }, []);
+  }, [fadeAnim, slideAnim, scaleAnim]);
+
+  // Show error alert when there's an error
+  useEffect(() => {
+    if (error) {
+      Alert.alert("Error", error);
+      clearError();
+    }
+  }, [error, clearError]);
 
   const updateFormData = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -60,11 +72,12 @@ const RegisterScreen = () => {
   const validateForm = () => {
     if (
       !formData.name ||
+      !formData.username ||
       !formData.email ||
       !formData.password ||
       !formData.confirmPassword
     ) {
-      Alert.alert("Error", "Por favor completa todos los campos");
+      Alert.alert("Error", "Por favor completa todos los campos obligatorios");
       return false;
     }
 
@@ -84,28 +97,38 @@ const RegisterScreen = () => {
       return false;
     }
 
+    const usernameRegex = /^[a-zA-Z0-9_]+$/;
+    if (!usernameRegex.test(formData.username)) {
+      Alert.alert(
+        "Error",
+        "El nombre de usuario solo puede contener letras, números y guiones bajos"
+      );
+      return false;
+    }
+
     return true;
   };
 
   const handleRegister = async () => {
     if (!validateForm()) return;
 
-    setIsLoading(true);
     try {
-      console.log("Register attempt:", formData);
-
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await register({
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+        bio: formData.name,
+      });
 
       Alert.alert("Éxito", "Cuenta creada exitosamente", [
         {
           text: "OK",
-          onPress: () => router.replace("/Login"),
+          onPress: () => router.replace("/Explore"),
         },
       ]);
     } catch (error) {
-      Alert.alert("Error", "No se pudo crear la cuenta. Intenta de nuevo.");
-    } finally {
-      setIsLoading(false);
+      // Error is handled by the store and shown in useEffect
+      console.error("Register error:", error);
     }
   };
 
@@ -163,6 +186,25 @@ const RegisterScreen = () => {
                   placeholder="Tu nombre completo"
                   placeholderTextColor={colors.text.secondary}
                   autoCapitalize="words"
+                  autoCorrect={false}
+                />
+              </View>
+            </View>
+
+            <View style={styles.inputContainer}>
+              <View style={styles.inputWrapper}>
+                <Ionicons
+                  name="at-outline"
+                  size={20}
+                  color={colors.text.secondary}
+                />
+                <TextInput
+                  style={styles.input}
+                  value={formData.username}
+                  onChangeText={(value) => updateFormData("username", value)}
+                  placeholder="nombre_usuario"
+                  placeholderTextColor={colors.text.secondary}
+                  autoCapitalize="none"
                   autoCorrect={false}
                 />
               </View>

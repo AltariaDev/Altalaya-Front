@@ -8,20 +8,10 @@ import Animated, {
   withDelay,
   withSpring,
 } from "react-native-reanimated";
+import { useMiradoresStore } from "../../../store";
 import { PERFORMANCE_CONFIG } from "../../../utils/performance";
 import { colors } from "../../../utils/theme";
 import OptimizedImage from "../../OptimizedImage";
-
-const HIGHLIGHTED = [
-  {
-    title: "Vista del puente Golden Gate",
-    image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
-  },
-  {
-    title: "Empire State Building",
-    image: "https://images.unsplash.com/photo-1464983953574-0892a716854b",
-  },
-];
 
 const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
 
@@ -32,7 +22,10 @@ const HighlightedCard = React.memo(
     scrollX,
     cardAnimation,
   }: {
-    item: (typeof HIGHLIGHTED)[0];
+    item: {
+      title: string;
+      image: string;
+    };
     index: number;
     scrollX: Animated.SharedValue<number>;
     cardAnimation: {
@@ -112,6 +105,8 @@ const HighlightedCard = React.memo(
 HighlightedCard.displayName = "HighlightedCard";
 
 const Highlighted = React.memo(() => {
+  const miradores = useMiradoresStore();
+
   const titleOpacity = useSharedValue(0);
   const titleTranslateY = useSharedValue(30);
   const scrollX = useSharedValue(0);
@@ -147,6 +142,17 @@ const Highlighted = React.memo(() => {
       card2TranslateX,
     ]
   );
+
+  // Get highlighted miradores (first 2 with most views)
+  const highlightedMiradores = useMemo(() => {
+    return miradores
+      .sort((a, b) => b.views - a.views)
+      .slice(0, 2)
+      .map((mirador) => ({
+        title: mirador.title,
+        image: mirador.image,
+      }));
+  }, [miradores]);
 
   useEffect(() => {
     titleOpacity.value = withSpring(1, {
@@ -213,7 +219,7 @@ const Highlighted = React.memo(() => {
   );
 
   const renderCard = useCallback(
-    (item: (typeof HIGHLIGHTED)[0], index: number) => (
+    (item: { title: string; image: string }, index: number) => (
       <HighlightedCard
         key={item.title}
         item={item}
@@ -238,7 +244,7 @@ const Highlighted = React.memo(() => {
         scrollEventThrottle={16}
         removeClippedSubviews={true}
       >
-        {HIGHLIGHTED.map(renderCard)}
+        {highlightedMiradores.map(renderCard)}
       </AnimatedScrollView>
     </>
   );

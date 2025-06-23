@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { ScrollView } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
+import { useMiradores } from "../store";
 import { colors } from "../utils/theme";
 
 import Highlighted from "../components/Pages/ExploreScreen/Highlighted";
@@ -13,16 +14,21 @@ import SearchBar from "../components/Pages/ExploreScreen/SearchBar";
 
 const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
 
-const ExploreScreen = React.memo(() => {
+export default function ExploreScreen() {
+  const miradores = useMiradores();
   const containerTranslateY = useSharedValue(20);
 
   React.useEffect(() => {
     containerTranslateY.value = withSpring(0, {
-      damping: 20,
-      stiffness: 200,
-      mass: 0.8,
+      damping: 15,
+      stiffness: 150,
     });
   }, [containerTranslateY]);
+
+  // Fetch miradores on component mount
+  useEffect(() => {
+    // Fetch miradores logic here if needed
+  }, []);
 
   const containerAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: containerTranslateY.value }],
@@ -50,8 +56,6 @@ const ExploreScreen = React.memo(() => {
       <Highlighted />
     </AnimatedScrollView>
   );
-});
+}
 
 ExploreScreen.displayName = "ExploreScreen";
-
-export default ExploreScreen;

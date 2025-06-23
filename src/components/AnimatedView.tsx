@@ -15,6 +15,7 @@ interface AnimatedViewProps extends ViewProps {
   direction?: "up" | "down" | "left" | "right" | "fade" | "scale";
   distance?: number;
   children: React.ReactNode;
+  isVisible: boolean;
 }
 
 const AnimatedView: React.FC<AnimatedViewProps> = ({
@@ -24,6 +25,7 @@ const AnimatedView: React.FC<AnimatedViewProps> = ({
   distance = 50,
   children,
   style,
+  isVisible,
   ...props
 }) => {
   const opacity = useSharedValue(0);
@@ -121,19 +123,50 @@ const AnimatedView: React.FC<AnimatedViewProps> = ({
     };
   });
 
-  // Set initial values
   useEffect(() => {
-    if (initialValues.translateY !== undefined) {
-      translateY.value = initialValues.translateY;
+    if (isVisible) {
+      opacity.value = withTiming(1, { duration: 600 });
+      scale.value = withSpring(1, { damping: 15, stiffness: 150 });
+      translateX.value = withSpring(0, { damping: 15, stiffness: 150 });
+      translateY.value = withSpring(0, { damping: 15, stiffness: 150 });
+    } else {
+      opacity.value = withTiming(0, { duration: 300 });
+      scale.value = withSpring(0.9, { damping: 15, stiffness: 150 });
+      translateX.value = withSpring(initialValues.translateX, {
+        damping: 15,
+        stiffness: 150,
+      });
+      translateY.value = withSpring(initialValues.translateY, {
+        damping: 15,
+        stiffness: 150,
+      });
     }
-    if (initialValues.translateX !== undefined) {
-      translateX.value = initialValues.translateX;
-    }
-    if (initialValues.scale !== undefined) {
-      scale.value = initialValues.scale;
-    }
+  }, [
+    isVisible,
+    opacity,
+    scale,
+    translateX,
+    translateY,
+    initialValues.translateX,
+    initialValues.translateY,
+  ]);
+
+  useEffect(() => {
+    // Reset to initial values when component mounts
     opacity.value = initialValues.opacity;
-  }, []);
+    scale.value = initialValues.scale;
+    translateX.value = initialValues.translateX;
+    translateY.value = initialValues.translateY;
+  }, [
+    initialValues.opacity,
+    initialValues.scale,
+    initialValues.translateX,
+    initialValues.translateY,
+    opacity,
+    scale,
+    translateX,
+    translateY,
+  ]);
 
   return (
     <Animated.View style={[style, animatedStyle]} {...props}>

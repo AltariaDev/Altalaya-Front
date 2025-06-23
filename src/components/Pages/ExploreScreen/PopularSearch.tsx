@@ -23,11 +23,56 @@ const AnimatedTouchableOpacity =
 export default function PopularSearch() {
   const titleOpacity = useSharedValue(0);
   const titleTranslateY = useSharedValue(30);
-  const buttonAnimations = POPULAR_SEARCHES.map(() => ({
-    scale: useSharedValue(0.8),
-    opacity: useSharedValue(0),
-    translateY: useSharedValue(50),
-  }));
+
+  // Create shared values for each button individually
+  const button1Scale = useSharedValue(0.8);
+  const button1Opacity = useSharedValue(0);
+  const button1TranslateY = useSharedValue(50);
+
+  const button2Scale = useSharedValue(0.8);
+  const button2Opacity = useSharedValue(0);
+  const button2TranslateY = useSharedValue(50);
+
+  const button3Scale = useSharedValue(0.8);
+  const button3Opacity = useSharedValue(0);
+  const button3TranslateY = useSharedValue(50);
+
+  const button4Scale = useSharedValue(0.8);
+  const button4Opacity = useSharedValue(0);
+  const button4TranslateY = useSharedValue(50);
+
+  const button5Scale = useSharedValue(0.8);
+  const button5Opacity = useSharedValue(0);
+  const button5TranslateY = useSharedValue(50);
+
+  // Group animations
+  const buttonAnimations = [
+    {
+      scale: button1Scale,
+      opacity: button1Opacity,
+      translateY: button1TranslateY,
+    },
+    {
+      scale: button2Scale,
+      opacity: button2Opacity,
+      translateY: button2TranslateY,
+    },
+    {
+      scale: button3Scale,
+      opacity: button3Opacity,
+      translateY: button3TranslateY,
+    },
+    {
+      scale: button4Scale,
+      opacity: button4Opacity,
+      translateY: button4TranslateY,
+    },
+    {
+      scale: button5Scale,
+      opacity: button5Opacity,
+      translateY: button5TranslateY,
+    },
+  ];
 
   useEffect(() => {
     // Animation du titre
@@ -49,22 +94,61 @@ export default function PopularSearch() {
         withSpring(0, { damping: 15, stiffness: 150 })
       );
     });
-  }, []);
+  }, [buttonAnimations, titleOpacity, titleTranslateY]);
 
   const titleAnimatedStyle = useAnimatedStyle(() => ({
     opacity: titleOpacity.value,
     transform: [{ translateY: titleTranslateY.value }],
   }));
 
-  const createButtonAnimatedStyle = (index: number) => {
-    return useAnimatedStyle(() => ({
-      opacity: buttonAnimations[index].opacity.value,
-      transform: [
-        { scale: buttonAnimations[index].scale.value },
-        { translateY: buttonAnimations[index].translateY.value },
-      ],
-    }));
-  };
+  // Create animated styles for each button
+  const button1AnimatedStyle = useAnimatedStyle(() => ({
+    opacity: button1Opacity.value,
+    transform: [
+      { scale: button1Scale.value },
+      { translateY: button1TranslateY.value },
+    ],
+  }));
+
+  const button2AnimatedStyle = useAnimatedStyle(() => ({
+    opacity: button2Opacity.value,
+    transform: [
+      { scale: button2Scale.value },
+      { translateY: button2TranslateY.value },
+    ],
+  }));
+
+  const button3AnimatedStyle = useAnimatedStyle(() => ({
+    opacity: button3Opacity.value,
+    transform: [
+      { scale: button3Scale.value },
+      { translateY: button3TranslateY.value },
+    ],
+  }));
+
+  const button4AnimatedStyle = useAnimatedStyle(() => ({
+    opacity: button4Opacity.value,
+    transform: [
+      { scale: button4Scale.value },
+      { translateY: button4TranslateY.value },
+    ],
+  }));
+
+  const button5AnimatedStyle = useAnimatedStyle(() => ({
+    opacity: button5Opacity.value,
+    transform: [
+      { scale: button5Scale.value },
+      { translateY: button5TranslateY.value },
+    ],
+  }));
+
+  const buttonAnimatedStyles = [
+    button1AnimatedStyle,
+    button2AnimatedStyle,
+    button3AnimatedStyle,
+    button4AnimatedStyle,
+    button5AnimatedStyle,
+  ];
 
   const handlePressIn = (index: number) => {
     buttonAnimations[index].scale.value = withSpring(0.95, {
@@ -123,7 +207,7 @@ export default function PopularSearch() {
                 shadowRadius: 4,
                 elevation: 3,
               },
-              createButtonAnimatedStyle(index),
+              buttonAnimatedStyles[index],
             ]}
             onPressIn={() => handlePressIn(index)}
             onPressOut={() => handlePressOut(index)}

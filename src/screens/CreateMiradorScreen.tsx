@@ -2,8 +2,9 @@ import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
 import { router } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
+  Alert,
   Image,
   ScrollView,
   StyleSheet,
@@ -36,35 +37,31 @@ export default function CreateMiradorScreen() {
   const { addMirador, setLoading } = useAppStore();
   const { handleError, handleAsyncError } = useErrorHandler();
 
-  useEffect(() => {
-    getCurrentLocation();
-  }, []);
-
-  const getCurrentLocation = async () => {
-    await handleAsyncError(async () => {
-      setLoading(true);
-
+  const getCurrentLocation = useCallback(async () => {
+    try {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        throw new Error("Se necesitan permisos de ubicación para esta función");
+        Alert.alert(
+          "Permisos requeridos",
+          "Se necesitan permisos de ubicación para crear un mirador"
+        );
+        return;
       }
 
       const location = await Location.getCurrentPositionAsync({});
-      const newRegion = {
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
-      };
-      setRegion(newRegion);
       setSelectedLocation({
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
       });
-    }, "Error al obtener la ubicación");
+    } catch (error) {
+      console.error("Error getting location:", error);
+      Alert.alert("Error", "No se pudo obtener la ubicación actual");
+    }
+  }, []);
 
-    setLoading(false);
-  };
+  useEffect(() => {
+    getCurrentLocation();
+  }, [getCurrentLocation]);
 
   const handleMapPress = async (event: any) => {
     const { latitude, longitude } = event.nativeEvent.coordinate;

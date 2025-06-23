@@ -27,6 +27,16 @@ export const useErrorHandler = () => {
 
       // Here you could send error to crash reporting service
       // Example: Sentry.captureException(error);
+
+      // You can add more sophisticated error handling here
+      // For example, sending to error reporting service
+      if (__DEV__) {
+        console.warn("Error details:", {
+          message: typeof error === "string" ? error : error.message,
+          stack: typeof error === "string" ? undefined : error.stack,
+          timestamp: new Date().toISOString(),
+        });
+      }
     },
     [setError, clearError]
   );

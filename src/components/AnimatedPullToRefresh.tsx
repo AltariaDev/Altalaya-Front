@@ -1,161 +1,80 @@
-import { Ionicons } from "@expo/vector-icons";
-import React, { useCallback } from "react";
-import { StyleSheet, View } from "react-native";
+import React, { useCallback, useEffect } from "react";
+import { RefreshControl, ScrollView, StyleSheet } from "react-native";
 import Animated, {
-  Extrapolate,
-  interpolate,
-  useAnimatedScrollHandler,
   useAnimatedStyle,
-  useDerivedValue,
   useSharedValue,
+  withSpring,
+  withTiming,
 } from "react-native-reanimated";
 import { colors } from "../utils/theme";
 
 interface AnimatedPullToRefreshProps {
   children: React.ReactNode;
   onRefresh: () => Promise<void>;
-  refreshing: boolean;
-  threshold?: number;
+  refreshing?: boolean;
+  style?: any;
 }
 
-const AnimatedPullToRefresh: React.FC<AnimatedPullToRefreshProps> = ({
+const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
+
+export default function AnimatedPullToRefresh({
   children,
   onRefresh,
-  refreshing,
-  threshold = 100,
-}) => {
-  const scrollY = useSharedValue(0);
+  refreshing = false,
+  style,
+}: AnimatedPullToRefreshProps) {
   const refreshingValue = useSharedValue(0);
-  const iconRotation = useSharedValue(0);
-
-  const scrollHandler = useAnimatedScrollHandler({
-    onScroll: (event) => {
-      scrollY.value = event.contentOffset.y;
-    },
-  });
-
-  const pullProgress = useDerivedValue(() => {
-    return interpolate(
-      scrollY.value,
-      [0, threshold],
-      [0, 1],
-      Extrapolate.CLAMP
-    );
-  });
-
-  const iconAnimatedStyle = useAnimatedStyle(() => {
-    const rotation = interpolate(
-      pullProgress.value,
-      [0, 1],
-      [0, 360],
-      Extrapolate.CLAMP
-    );
-
-    const scale = interpolate(
-      pullProgress.value,
-      [0, 1],
-      [0.5, 1],
-      Extrapolate.CLAMP
-    );
-
-    return {
-      transform: [{ rotate: `${rotation}deg` }, { scale }],
-      opacity: pullProgress.value,
-    };
-  });
-
-  const textAnimatedStyle = useAnimatedStyle(() => {
-    return {
-      opacity: pullProgress.value,
-      transform: [
-        {
-          translateY: interpolate(
-            pullProgress.value,
-            [0, 1],
-            [20, 0],
-            Extrapolate.CLAMP
-          ),
-        },
-      ],
-    };
-  });
+  const scaleValue = useSharedValue(1);
+  const opacityValue = useSharedValue(1);
 
   const handleRefresh = useCallback(async () => {
-    refreshingValue.value = 1;
-    await onRefresh();
-    refreshingValue.value = 0;
-  }, [onRefresh]);
+    refreshingValue.value = withTiming(1, { duration: 300 });
+    scaleValue.value = withSpring(0.95, { damping: 15, stiffness: 150 });
+    opacityValue.value = withTiming(0.7, { duration: 200 });
 
-  const refreshIndicatorStyle = useAnimatedStyle(() => {
-    const translateY = interpolate(
-      scrollY.value,
-      [-threshold, 0],
-      [0, -threshold],
-      Extrapolate.CLAMP
-    );
+    try {
+      await onRefresh();
+    } finally {
+      refreshingValue.value = withTiming(0, { duration: 300 });
+      scaleValue.value = withSpring(1, { damping: 15, stiffness: 150 });
+      opacityValue.value = withTiming(1, { duration: 200 });
+    }
+  }, [onRefresh, refreshingValue, scaleValue, opacityValue]);
 
-    return {
-      transform: [{ translateY }],
-    };
-  });
+  useEffect(() => {
+    if (refreshing) {
+      refreshingValue.value = withTiming(1, { duration: 300 });
+    } else {
+      refreshingValue.value = withTiming(0, { duration: 300 });
+    }
+  }, [refreshing, refreshingValue]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scaleValue.value }],
+    opacity: opacityValue.value,
+  }));
 
   return (
-    <View style={styles.container}>
-      <Animated.View style={[styles.refreshIndicator, refreshIndicatorStyle]}>
-        <Animated.View style={[styles.iconContainer, iconAnimatedStyle]}>
-          <Ionicons
-            name={refreshing ? "sync" : "arrow-down"}
-            size={24}
-            color="#007AFF"
-          />
-        </Animated.View>
-        <Animated.Text style={[styles.refreshText, textAnimatedStyle]}>
-          {refreshing ? "Actualizando..." : "Tira para actualizar"}
-        </Animated.Text>
-      </Animated.View>
-
-      <Animated.ScrollView
-        onScroll={scrollHandler}
-        scrollEventThrottle={16}
-        onRefresh={handleRefresh}
-        refreshing={refreshing}
-        showsVerticalScrollIndicator={false}
-      >
-        {children}
-      </Animated.ScrollView>
-    </View>
+    <AnimatedScrollView
+      style={[styles.container, style, animatedStyle]}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={handleRefresh}
+          tintColor={colors.text.secondary}
+          colors={[colors.text.secondary]}
+          progressBackgroundColor={colors.background.secondary}
+        />
+      }
+      showsVerticalScrollIndicator={false}
+    >
+      {children}
+    </AnimatedScrollView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  refreshIndicator: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 80,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "transparent",
-    zIndex: 1000,
-  },
-  iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(254, 116, 41, 0.1)",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 8,
-  },
-  refreshText: {
-    color: colors.accent,
-    fontSize: 14,
-    fontWeight: "500",
-  },
 });
-
-export default AnimatedPullToRefresh;

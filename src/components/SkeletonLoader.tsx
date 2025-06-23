@@ -3,9 +3,6 @@ import { StyleSheet, View, ViewStyle } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
-  withRepeat,
-  withSequence,
-  withTiming,
 } from "react-native-reanimated";
 import { colors } from "../utils/theme";
 
@@ -27,15 +24,25 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({
   const opacity = useSharedValue(0.3);
 
   useEffect(() => {
-    opacity.value = withRepeat(
-      withSequence(
-        withTiming(0.7, { duration: 1000 }),
-        withTiming(0.3, { duration: 1000 })
-      ),
-      -1,
-      true
+    const animation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(opacity, {
+          toValue: 0.3,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacity, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
     );
-  }, []);
+
+    animation.start();
+
+    return () => animation.stop();
+  }, [opacity]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,

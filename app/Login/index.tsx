@@ -13,13 +13,15 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useAuthStore } from "../../src/store";
 import { colors, theme } from "../../src/utils/theme";
 
 const LoginScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  const { login, isLoading, error, clearError } = useAuthStore();
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
@@ -46,7 +48,15 @@ const LoginScreen = () => {
     ]);
 
     animation.start();
-  }, []);
+  }, [fadeAnim, slideAnim, scaleAnim]);
+
+  // Show error alert when there's an error
+  useEffect(() => {
+    if (error) {
+      Alert.alert("Error", error);
+      clearError();
+    }
+  }, [error, clearError]);
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -54,17 +64,12 @@ const LoginScreen = () => {
       return;
     }
 
-    setIsLoading(true);
     try {
-      console.log("Login attempt:", { email, password });
-
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
+      await login(email, password);
       router.replace("/Explore");
     } catch (error) {
-      Alert.alert("Error", "Credenciales inválidas");
-    } finally {
-      setIsLoading(false);
+      // Error is handled by the store and shown in useEffect
+      console.error("Login error:", error);
     }
   };
 

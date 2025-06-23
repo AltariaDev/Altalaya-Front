@@ -39,10 +39,30 @@ export default function ProfileScreen() {
   const statsOpacity = useSharedValue(0);
   const contentOpacity = useSharedValue(0);
   const contentTranslateY = useSharedValue(50);
-  const postAnimations = userPosts.map(() => ({
-    scale: useSharedValue(0.9),
-    opacity: useSharedValue(0),
-  }));
+
+  // Create shared values for each post individually (max 6 posts)
+  const post1Scale = useSharedValue(0.9);
+  const post1Opacity = useSharedValue(0);
+  const post2Scale = useSharedValue(0.9);
+  const post2Opacity = useSharedValue(0);
+  const post3Scale = useSharedValue(0.9);
+  const post3Opacity = useSharedValue(0);
+  const post4Scale = useSharedValue(0.9);
+  const post4Opacity = useSharedValue(0);
+  const post5Scale = useSharedValue(0.9);
+  const post5Opacity = useSharedValue(0);
+  const post6Scale = useSharedValue(0.9);
+  const post6Opacity = useSharedValue(0);
+
+  // Group post animations
+  const postAnimations = [
+    { scale: post1Scale, opacity: post1Opacity },
+    { scale: post2Scale, opacity: post2Opacity },
+    { scale: post3Scale, opacity: post3Opacity },
+    { scale: post4Scale, opacity: post4Opacity },
+    { scale: post5Scale, opacity: post5Opacity },
+    { scale: post6Scale, opacity: post6Opacity },
+  ];
 
   useEffect(() => {
     // Header animations
@@ -76,7 +96,15 @@ export default function ProfileScreen() {
         withSpring(1, { damping: 15, stiffness: 150 })
       );
     });
-  }, []);
+  }, [
+    postAnimations,
+    headerOpacity,
+    headerTranslateY,
+    avatarScale,
+    statsOpacity,
+    contentOpacity,
+    contentTranslateY,
+  ]);
 
   const headerAnimatedStyle = useAnimatedStyle(() => ({
     opacity: headerOpacity.value,
@@ -96,12 +124,45 @@ export default function ProfileScreen() {
     transform: [{ translateY: contentTranslateY.value }],
   }));
 
-  const createPostAnimatedStyle = (index: number) => {
-    return useAnimatedStyle(() => ({
-      opacity: postAnimations[index].opacity.value,
-      transform: [{ scale: postAnimations[index].scale.value }],
-    }));
-  };
+  // Create animated styles for each post individually
+  const post1AnimatedStyle = useAnimatedStyle(() => ({
+    opacity: post1Opacity.value,
+    transform: [{ scale: post1Scale.value }],
+  }));
+
+  const post2AnimatedStyle = useAnimatedStyle(() => ({
+    opacity: post2Opacity.value,
+    transform: [{ scale: post2Scale.value }],
+  }));
+
+  const post3AnimatedStyle = useAnimatedStyle(() => ({
+    opacity: post3Opacity.value,
+    transform: [{ scale: post3Scale.value }],
+  }));
+
+  const post4AnimatedStyle = useAnimatedStyle(() => ({
+    opacity: post4Opacity.value,
+    transform: [{ scale: post4Scale.value }],
+  }));
+
+  const post5AnimatedStyle = useAnimatedStyle(() => ({
+    opacity: post5Opacity.value,
+    transform: [{ scale: post5Scale.value }],
+  }));
+
+  const post6AnimatedStyle = useAnimatedStyle(() => ({
+    opacity: post6Opacity.value,
+    transform: [{ scale: post6Scale.value }],
+  }));
+
+  const postAnimatedStyles = [
+    post1AnimatedStyle,
+    post2AnimatedStyle,
+    post3AnimatedStyle,
+    post4AnimatedStyle,
+    post5AnimatedStyle,
+    post6AnimatedStyle,
+  ];
 
   const handleViewMode = () => {
     setViewMode(viewMode === "grid" ? "list" : "grid");
@@ -169,7 +230,7 @@ export default function ProfileScreen() {
               style={[
                 styles.postCard,
                 viewMode === "list" && styles.postCardList,
-                createPostAnimatedStyle(index),
+                postAnimatedStyles[index],
               ]}
               onPress={() =>
                 router.push({
