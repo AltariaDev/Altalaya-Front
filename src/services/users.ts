@@ -7,7 +7,7 @@ export interface User {
   name: string;
   email: string;
   bio?: string;
-  avatar?: string;
+  avatarUrl?: string;
   createdAt: string;
   updatedAt: string;
   posts: number;
@@ -20,14 +20,20 @@ export interface UpdateProfileData {
   name?: string;
   email?: string;
   bio?: string;
-  avatar?: string;
+  avatarUrl?: string;
 }
 
 export interface FollowData {
   id: string;
   username: string;
-  avatar?: string;
+  avatarUrl?: string;
   bio?: string;
+}
+
+export interface SearchParams {
+  query: string;
+  page?: number;
+  limit?: number;
 }
 
 export const usersService = {
@@ -43,7 +49,7 @@ export const usersService = {
       const { updateUser } = useUserStore.getState().actions;
       updateUser({
         ...response.data,
-        avatar: response.data.avatar || "",
+        avatarUrl: response.data.avatarUrl || "",
       });
 
       return response.data;
@@ -90,6 +96,14 @@ export const usersService = {
     meta: { page: number; limit: number; total: number; totalPages: number };
   }> {
     const response = await api.get(`/users/${userId}/following`, { params });
+    return response.data;
+  },
+
+  async searchUsers(params: SearchParams): Promise<{
+    data: User[];
+    meta: { page: number; limit: number; total: number; totalPages: number };
+  }> {
+    const response = await api.get("/users/search", { params });
     return response.data;
   },
 };

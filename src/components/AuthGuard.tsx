@@ -1,7 +1,11 @@
 import { Redirect } from "expo-router";
 import React, { useEffect } from "react";
 import { ActivityIndicator, View } from "react-native";
-import { useAuthStore } from "../store/authStore";
+import {
+  useAuthStore,
+  useIsAuthenticated,
+  useIsLoading,
+} from "../store/authStore";
 import { colors } from "../utils/theme";
 
 interface AuthGuardProps {
@@ -9,13 +13,14 @@ interface AuthGuardProps {
 }
 
 const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
-  const { isAuthenticated, isLoading, checkAuth } = useAuthStore();
+  const isAuthenticated = useIsAuthenticated();
+  const isLoading = useIsLoading();
+  const { checkAuth } = useAuthStore((state) => state.actions);
 
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
 
-  // Show loading while checking authentication
   if (isLoading) {
     return (
       <View
@@ -31,7 +36,6 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
     );
   }
 
-  // Redirect to login if not authenticated
   if (!isAuthenticated) {
     return <Redirect href="/Login" />;
   }

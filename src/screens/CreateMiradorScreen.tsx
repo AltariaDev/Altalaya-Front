@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
   Alert,
@@ -15,10 +15,12 @@ import {
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { useErrorHandler } from "../hooks/useErrorHandler";
-import { useAppStore } from "../store";
+import { Mirador, miradoresService } from "../services/miradores";
+import { useIsLoading, useMiradoresStore } from "../store/miradoresStore";
 import { colors } from "../utils/theme";
 
 export default function CreateMiradorScreen() {
+  const { mirador, isEditing } = useLocalSearchParams();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [image, setImage] = useState<string | null>(null);
@@ -33,9 +35,36 @@ export default function CreateMiradorScreen() {
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
   });
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  const { addMirador, setLoading } = useAppStore();
+  const { createMirador } = useMiradoresStore((state) => state.actions);
+  const isLoading = useIsLoading();
   const { handleError, handleAsyncError } = useErrorHandler();
+
+  const isEditMode = isEditing === "true";
+  const miradorData: Mirador | null = mirador
+    ? JSON.parse(mirador as string)
+    : null;
+
+  useEffect(() => {
+    if (isEditMode && miradorData && !isInitialized) {
+      setTitle(miradorData.title);
+      setDescription(miradorData.description || "");
+      setImage(miradorData.imageUrl);
+      setSelectedLocation({
+        latitude: Number(miradorData.latitude),
+        longitude: Number(miradorData.longitude),
+        address: `${miradorData.city}, ${miradorData.country}`,
+      });
+      setRegion({
+        latitude: Number(miradorData.latitude),
+        longitude: Number(miradorData.longitude),
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
+      });
+      setIsInitialized(true);
+    }
+  }, [isEditMode, miradorData, isInitialized]);
 
   const getCurrentLocation = useCallback(async () => {
     try {
@@ -95,7 +124,7 @@ export default function CreateMiradorScreen() {
   const pickImage = async () => {
     await handleAsyncError(async () => {
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ["images"],
         allowsEditing: true,
         aspect: [16, 9],
         quality: 1,
@@ -113,27 +142,38 @@ export default function CreateMiradorScreen() {
       return;
     }
 
-    await handleAsyncError(async () => {
-      setLoading(true);
+    await handleAsyncError(
+      async () => {
+        // const uploadResponse = await uploadService.uploadImage(image);
 
-      const newMirador = {
-        key: Date.now().toString(),
-        title,
-        description,
-        image,
-        views: "0",
-        coordinate: {
+        const addressParts = selectedLocation.address?.split(", ") || [];
+        const city = addressParts[1] || "Málaga";
+        const country = addressParts[3] || "España";
+
+        const newMiradorData = {
+          title,
+          description: description || undefined,
+          imageUrl: "https://i.pravatar.cc/300?img=17",
           latitude: selectedLocation.latitude,
           longitude: selectedLocation.longitude,
-        },
-        address: selectedLocation.address,
-      };
+          city,
+          country,
+        };
 
-      addMirador(newMirador);
-      router.back();
-    }, "Error al crear el mirador");
+        console.log("miradorData", newMiradorData);
 
-    setLoading(false);
+        if (isEditMode && miradorData) {
+          await miradoresService.updateMirador(miradorData.id, newMiradorData);
+        } else {
+          await createMirador(newMiradorData);
+        }
+
+        router.back();
+      },
+      isEditMode
+        ? "Error al actualizar el mirador"
+        : "Error al crear el mirador"
+    );
   };
 
   return (
@@ -146,17 +186,27 @@ export default function CreateMiradorScreen() {
           >
             <Ionicons name="arrow-back" size={24} color={colors.text.primary} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Crear Mirador</Text>
+          <Text style={styles.headerTitle}>
+            {isEditMode ? "Editar Mirador" : "Crear Mirador"}
+          </Text>
           <TouchableOpacity
             onPress={handleSubmit}
             style={[
               styles.submitButton,
-              (!title || !image || !selectedLocation) &&
+              (!title || !image || !selectedLocation || isLoading) &&
                 styles.submitButtonDisabled,
             ]}
-            disabled={!title || !image || !selectedLocation}
+            disabled={!title || !image || !selectedLocation || isLoading}
           >
-            <Text style={styles.submitButtonText}>Publicar</Text>
+            <Text style={styles.submitButtonText}>
+              {isLoading
+                ? isEditMode
+                  ? "Actualizando..."
+                  : "Publicando..."
+                : isEditMode
+                ? "Actualizar"
+                : "Publicar"}
+            </Text>
           </TouchableOpacity>
         </View>
 
@@ -212,9 +262,10 @@ export default function CreateMiradorScreen() {
             >
               {selectedLocation && (
                 <Marker
+                  key={`${selectedLocation.latitude}-${selectedLocation.longitude}`}
                   coordinate={{
-                    latitude: selectedLocation.latitude,
-                    longitude: selectedLocation.longitude,
+                    latitude: Number(selectedLocation.latitude),
+                    longitude: Number(selectedLocation.longitude),
                   }}
                   pinColor={colors.accent}
                 />

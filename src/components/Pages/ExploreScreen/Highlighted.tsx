@@ -1,3 +1,4 @@
+import { useMiradores } from "@/store/miradoresStore";
 import React, { useCallback, useEffect, useMemo } from "react";
 import { ScrollView, Text } from "react-native";
 import Animated, {
@@ -8,7 +9,6 @@ import Animated, {
   withDelay,
   withSpring,
 } from "react-native-reanimated";
-import { useMiradores } from "../../../store";
 import { PERFORMANCE_CONFIG } from "../../../utils/performance";
 import { colors } from "../../../utils/theme";
 import OptimizedImage from "../../OptimizedImage";
@@ -145,13 +145,15 @@ const Highlighted = React.memo(() => {
 
   // Get highlighted miradores (first 2 with most views)
   const highlightedMiradores = useMemo(() => {
-    return miradores
-      .sort((a, b) => b.views - a.views)
-      .slice(0, 2)
-      .map((mirador) => ({
-        title: mirador.title,
-        image: mirador.image,
-      }));
+    return (
+      miradores
+        // .sort((a, b) => b.views - a.views)
+        .slice(0, 2)
+        .map((mirador) => ({
+          title: mirador.title,
+          image: mirador.imageUrl,
+        }))
+    );
   }, [miradores]);
 
   useEffect(() => {

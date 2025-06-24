@@ -1,5 +1,6 @@
+import { useMiradores, useMiradoresStore } from "@/store/miradoresStore";
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   FlatList,
   Image,
@@ -8,19 +9,23 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useMiradores } from "../store";
 import { colors } from "../utils/theme";
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { fetchMiradores } = useMiradoresStore((state) => state.actions);
   const miradores = useMiradores();
+
+  useEffect(() => {
+    fetchMiradores();
+  }, [fetchMiradores]);
 
   return (
     <View style={styles.container}>
       <FlatList
         data={miradores}
         numColumns={2}
-        keyExtractor={(item) => item.key}
+        keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContainer}
         renderItem={({ item }) => (
           <TouchableOpacity
@@ -32,12 +37,12 @@ export default function HomeScreen() {
               })
             }
           >
-            <Image source={{ uri: item.image }} style={styles.image} />
+            <Image source={{ uri: item.imageUrl }} style={styles.image} />
             <View style={styles.cardContent}>
               <Text style={styles.title} numberOfLines={2}>
                 {item.title}
               </Text>
-              <Text style={styles.views}>{item.views} views</Text>
+              <Text style={styles.views}>0 views</Text>
             </View>
           </TouchableOpacity>
         )}

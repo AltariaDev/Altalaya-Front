@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ScrollView, Text, View } from "react-native";
+import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -9,6 +9,7 @@ import { miradoresService } from "../services/miradores";
 import { usersService } from "../services/users";
 import { colors } from "../utils/theme";
 
+import { router } from "expo-router";
 import Highlighted from "../components/Pages/ExploreScreen/Highlighted";
 import PopularSearch from "../components/Pages/ExploreScreen/PopularSearch";
 import SearchBar from "../components/Pages/ExploreScreen/SearchBar";
@@ -21,6 +22,7 @@ export default function ExploreScreen() {
   );
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const containerTranslateY = useSharedValue(20);
 
@@ -35,18 +37,20 @@ export default function ExploreScreen() {
     if (!query.trim()) {
       setSearchResults([]);
       setIsSearching(false);
+      setSearchQuery("");
       return;
     }
 
     setIsSearching(true);
     setSearchType(type);
+    setSearchQuery(query);
 
     try {
       if (type === "miradores") {
-        const response = await miradoresService.search({ q: query });
+        const response = await miradoresService.searchMiradores({ query });
         setSearchResults(response.data);
       } else {
-        const response = await usersService.searchUsers(query);
+        const response = await usersService.searchUsers({ query });
         setSearchResults(response.data);
       }
     } catch (error) {
@@ -76,12 +80,20 @@ export default function ExploreScreen() {
       showsVerticalScrollIndicator={false}
     >
       <SearchBar
+        searchQuery={searchQuery}
         searchType={searchType}
         onSearch={handleSearch}
         setSearchType={setSearchType}
       />
 
       <PopularSearch onSearch={handlePopularSearch} searchType={searchType} />
+      {!isSearching && searchQuery && searchResults.length === 0 && (
+        <View style={{ marginTop: 20 }}>
+          <Text style={{ color: colors.text.secondary, textAlign: "center" }}>
+            No se encontraron resultados
+          </Text>
+        </View>
+      )}
 
       {isSearching && (
         <Animated.View style={{ marginTop: 20 }}>
@@ -92,7 +104,7 @@ export default function ExploreScreen() {
       )}
 
       {!isSearching && searchResults.length > 0 && (
-        <Animated.View style={{ marginTop: 20 }}>
+        <Animated.View>
           <Text
             style={{
               color: colors.text.primary,
@@ -104,8 +116,23 @@ export default function ExploreScreen() {
             Resultados de búsqueda ({searchResults.length})
           </Text>
           {searchResults.map((item, index) => (
-            <View
+            <TouchableOpacity
               key={item.id || index}
+              onPress={() => {
+                if (searchType === "miradores") {
+                  router.push({
+                    pathname: "/MiradorDetail",
+                    params: {
+                      mirador: JSON.stringify(item),
+                    },
+                  });
+                } else {
+                  router.push({
+                    pathname: "/UserDetail",
+                    params: { id: item.id, searchQuery },
+                  });
+                }
+              }}
               style={{
                 backgroundColor: colors.background.secondary,
                 borderRadius: 12,
@@ -113,45 +140,79 @@ export default function ExploreScreen() {
                 marginBottom: 12,
                 borderWidth: 1,
                 borderColor: colors.detail,
+                flexDirection: "row",
+                alignItems: "center",
+                height: 150,
               }}
             >
-              <Text
-                style={{
-                  color: colors.text.primary,
-                  fontSize: 16,
-                  fontWeight: "500",
+              <Image
+                source={{
+                  uri:
+                    searchType === "miradores"
+                      ? item.imageUrl
+                      : item.avatarUrl || "https://via.placeholder.com/50",
                 }}
-              >
-                {searchType === "miradores" ? item.title : item.username}
-              </Text>
-              {searchType === "miradores" && item.description && (
+                style={{
+                  width: 100,
+                  height: "100%",
+                  borderRadius: 5,
+                  marginRight: 12,
+                }}
+              />
+              <View style={{ flex: 1 }}>
                 <Text
                   style={{
-                    color: colors.text.secondary,
-                    fontSize: 14,
-                    marginTop: 4,
+                    color: colors.text.primary,
+                    fontSize: 24,
+                    fontWeight: "500",
                   }}
                 >
-                  {item.description}
+                  {searchType === "miradores" ? item.title : item.username}
                 </Text>
-              )}
-              {searchType === "users" && item.bio && (
+                {searchType === "miradores" && item.description && (
+                  <Text
+                    style={{
+                      color: colors.text.secondary,
+                      fontSize: 18,
+                      marginTop: 4,
+                    }}
+                  >
+                    {item.description}
+                  </Text>
+                )}
+                {searchType === "users" && item.bio && (
+                  <Text
+                    style={{
+                      color: colors.text.secondary,
+                      fontSize: 18,
+                      marginTop: 4,
+                    }}
+                  >
+                    {item.bio}
+                  </Text>
+                )}
                 <Text
                   style={{
-                    color: colors.text.secondary,
-                    fontSize: 14,
+                    color: colors.text.primary,
+                    fontSize: 16,
                     marginTop: 4,
+                    fontWeight: "500",
+                    textDecorationLine: "underline",
+                    textDecorationColor: colors.detail,
+                    textDecorationStyle: "solid",
                   }}
                 >
-                  {item.bio}
+                  Ver más
                 </Text>
-              )}
-            </View>
+              </View>
+            </TouchableOpacity>
           ))}
         </Animated.View>
       )}
 
-      {!isSearching && searchResults.length === 0 && <Highlighted />}
+      {!isSearching && searchResults.length === 0 && !searchQuery && (
+        <Highlighted />
+      )}
     </AnimatedScrollView>
   );
 }

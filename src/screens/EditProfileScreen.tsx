@@ -1,5 +1,5 @@
 import { usersService } from "@/services/users";
-import { useUser } from "@/store/authStore";
+import { useUser } from "@/store/userStore";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
@@ -38,14 +38,13 @@ export default function EditProfileScreen() {
 
   const handleSave = async () => {
     try {
-      const response = await usersService.updateProfile({
+      await usersService.updateMyProfile({
         name,
         username,
         email,
         bio,
         avatar,
       });
-      console.log("response", response);
       router.back();
     } catch (error) {
       console.error(error);

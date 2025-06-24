@@ -1,4 +1,4 @@
-import { useAuthStore } from "@/store/authStore";
+import { useUser, useUserStore } from "@/store/userStore";
 import { Ionicons } from "@expo/vector-icons";
 import { router, usePathname } from "expo-router";
 import React, { useCallback, useEffect, useMemo } from "react";
@@ -11,12 +11,12 @@ interface TopbarProps {
 
 const Topbar = React.memo(({ title }: TopbarProps) => {
   const pathname = usePathname();
-  const loadUser = useAuthStore((state) => state.loadUser);
-  const user = useAuthStore((state) => state.user);
+  const { loadUser } = useUserStore((state) => state.actions);
+  const user = useUser();
 
   useEffect(() => {
     loadUser();
-  }, []);
+  }, [loadUser]);
 
   const nonProfileAvatar = useMemo(() => ["/Profile", "/Settings"], []);
   const showAvatar = useMemo(
@@ -41,7 +41,7 @@ const Topbar = React.memo(({ title }: TopbarProps) => {
       <View style={styles.avatarContainer}>
         {showAvatar && user && (
           <TouchableOpacity onPress={handleProfilePress}>
-            <Image source={{ uri: user.avatar }} style={styles.avatar} />
+            <Image source={{ uri: user.avatarUrl }} style={styles.avatar} />
           </TouchableOpacity>
         )}
       </View>

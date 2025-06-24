@@ -1,3 +1,4 @@
+import { Mirador } from "@/services/miradores";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import React from "react";
@@ -12,11 +13,39 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useUser } from "../store/userStore";
 import { colors } from "../utils/theme";
 
 export default function MiradorDetail() {
   const { mirador } = useLocalSearchParams();
-  const miradorData = JSON.parse(mirador as string);
+  const miradorData: Mirador = JSON.parse(mirador as string);
+  const currentUser = useUser();
+
+  const isOwner = currentUser?.id === miradorData.user.id;
+
+  const handleEdit = () => {
+    router.push({
+      pathname: "/CreateMirador",
+      params: {
+        mirador: JSON.stringify(miradorData),
+        isEditing: "true",
+      },
+    });
+  };
+
+  const timeAgo = () => {
+    const date = new Date(miradorData.createdAt);
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor(diff / (1000 * 60));
+
+    if (days > 0) return `Hace ${days} día${days > 1 ? "s" : ""}`;
+    if (hours > 0) return `Hace ${hours} hora${hours > 1 ? "s" : ""}`;
+    if (minutes > 0) return `Hace ${minutes} minuto${minutes > 1 ? "s" : ""}`;
+    return "Hace un momento";
+  };
 
   return (
     <View style={styles.container}>
@@ -26,6 +55,15 @@ export default function MiradorDetail() {
       >
         <View style={styles.header}>
           <Text style={styles.headerTitle}>{miradorData.title}</Text>
+          {isOwner && (
+            <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
+              <Ionicons
+                name="create-outline"
+                size={24}
+                color={colors.text.primary}
+              />
+            </TouchableOpacity>
+          )}
         </View>
 
         <TouchableOpacity
@@ -48,10 +86,13 @@ export default function MiradorDetail() {
             <Text style={styles.locationCity}>{miradorData.city}</Text>
             <Text style={styles.locationPlace}>{miradorData.country}</Text>
           </View>
-          <Text style={styles.timeAgo}>Hace 2 horas</Text>
+          <Text style={styles.timeAgo}>{timeAgo()}</Text>
         </TouchableOpacity>
 
-        <Image source={{ uri: miradorData.image }} style={styles.mainImage} />
+        <Image
+          source={{ uri: miradorData.imageUrl }}
+          style={styles.mainImage}
+        />
 
         <Text style={styles.description}>{miradorData.description}</Text>
 
@@ -62,7 +103,7 @@ export default function MiradorDetail() {
               size={24}
               color={colors.text.secondary}
             />
-            <Text style={styles.iconText}>{miradorData.likes}</Text>
+            <Text style={styles.iconText}>0</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.iconButton}>
             <Ionicons
@@ -70,7 +111,7 @@ export default function MiradorDetail() {
               size={24}
               color={colors.text.secondary}
             />
-            <Text style={styles.iconText}>{miradorData.comments}</Text>
+            <Text style={styles.iconText}>0</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.iconButton}>
             <Ionicons
@@ -78,7 +119,7 @@ export default function MiradorDetail() {
               size={24}
               color={colors.text.secondary}
             />
-            <Text style={styles.iconText}>{miradorData.views}</Text>
+            <Text style={styles.iconText}>0</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -237,5 +278,18 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     justifyContent: "center",
     alignItems: "center",
+  },
+  editButton: {
+    width: 48,
+    height: 48,
+    backgroundColor: colors.background.secondary,
+    borderRadius: 24,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
 });

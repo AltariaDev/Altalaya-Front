@@ -19,7 +19,7 @@ export interface User {
   name: string;
   email: string;
   bio?: string;
-  avatar?: string;
+  avatarUrl?: string;
   createdAt: string;
   updatedAt: string;
   followers: string[];
@@ -82,6 +82,7 @@ export const authService = {
 
   async getCurrentUser(): Promise<User> {
     const userData = await AsyncStorage.getItem("user");
+
     if (userData) {
       return JSON.parse(userData);
     }
@@ -96,6 +97,7 @@ export const authService = {
 
   async logout(): Promise<void> {
     await AsyncStorage.removeItem("authToken");
+    await AsyncStorage.removeItem("user");
   },
 
   async isAuthenticated(): Promise<boolean> {

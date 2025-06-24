@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { authService } from "../services/auth";
+import { useMiradoresStore } from "./miradoresStore";
 import { useUserStore } from "./userStore";
 
 interface AuthState {
@@ -21,6 +22,7 @@ interface AuthState {
   };
 }
 const { setUser } = useUserStore.getState().actions;
+const { clearMiradores } = useMiradoresStore.getState().actions;
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   isAuthenticated: false,
@@ -77,6 +79,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       try {
         await authService.logout();
         setUser(null);
+        clearMiradores();
         set({
           isAuthenticated: false,
           isLoading: false,
@@ -119,3 +122,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     },
   },
 }));
+
+export const useIsLoading = () => useAuthStore((state) => state.isLoading);
+export const useIsAuthenticated = () =>
+  useAuthStore((state) => state.isAuthenticated);
+export const useError = () => useAuthStore((state) => state.error);

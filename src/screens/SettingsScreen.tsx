@@ -1,4 +1,4 @@
-import { authService } from "@/services/auth";
+import { useAuthStore } from "@/store/authStore";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
@@ -124,6 +124,8 @@ export default function SettingsScreen() {
   const [showLanguageModal, setShowLanguageModal] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState("Español");
   const { setLanguage } = useAppStore();
+  const { logout } = useAuthStore((state) => state.actions);
+
   const handleLogout = () => {
     Alert.alert(
       "Cerrar Sesión",
@@ -134,7 +136,7 @@ export default function SettingsScreen() {
           text: "Cerrar Sesión",
           style: "destructive",
           onPress: () => {
-            authService.logout();
+            logout();
             router.replace("/Login");
           },
         },

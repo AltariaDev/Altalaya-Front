@@ -20,13 +20,19 @@ interface SearchBarProps {
   searchType?: "miradores" | "users";
   onSearch?: (query: string, type: "miradores" | "users") => void;
   setSearchType: (type: "miradores" | "users") => void;
+  searchQuery: string;
 }
 
 const AnimatedTouchableOpacity =
   Animated.createAnimatedComponent(TouchableOpacity);
 
 const SearchBar = React.memo(
-  ({ searchType = "miradores", onSearch, setSearchType }: SearchBarProps) => {
+  ({
+    searchType = "miradores",
+    onSearch,
+    setSearchType,
+    searchQuery,
+  }: SearchBarProps) => {
     const scale = useSharedValue(0.9);
     const focusScale = useSharedValue(1);
     const isFocused = useSharedValue(false);
@@ -70,9 +76,7 @@ const SearchBar = React.memo(
     const handleTextChange = useMemo(
       () =>
         debounce((text: string) => {
-          if (text.trim()) {
-            onSearch?.(text.trim(), searchType);
-          }
+          onSearch?.(text.trim(), searchType);
         }, 300),
       [onSearch, searchType]
     );
@@ -166,6 +170,7 @@ const SearchBar = React.memo(
               onBlur={handleBlur}
               onChangeText={handleTextChange}
               style={inputStyle as TextStyle}
+              defaultValue={searchQuery}
             />
           </View>
         </LinearGradient>

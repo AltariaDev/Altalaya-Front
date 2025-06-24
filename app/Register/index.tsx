@@ -1,3 +1,4 @@
+import { useAuthStore, useError, useIsLoading } from "@/store/authStore";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
@@ -13,7 +14,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useAuthStore } from "../../src/store";
 import { colors, theme } from "../../src/utils/theme";
 
 const RegisterScreen = () => {
@@ -28,7 +28,9 @@ const RegisterScreen = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const { register, isLoading, error, clearError } = useAuthStore();
+  const { register, clearError } = useAuthStore((state) => state.actions);
+  const isLoading = useIsLoading();
+  const error = useError();
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;

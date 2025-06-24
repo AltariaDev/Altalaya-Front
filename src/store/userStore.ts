@@ -20,19 +20,19 @@ export const useUserStore = create<UserStore>((set) => ({
       set({
         user: {
           ...user,
-          avatar: user.avatar ?? "https://i.pravatar.cc/300?img=12",
+          avatarUrl: user.avatarUrl ?? "https://i.pravatar.cc/300?img=12",
         },
       });
     },
     loadUser: async () => {
       const user = await authService.getCurrentUser();
-      console.log("loadUser user", user);
+
       set({
         user: {
           id: user.id,
           name: user.username,
           username: user.username,
-          avatar: user.avatar ?? "https://i.pravatar.cc/300?img=12",
+          avatarUrl: user.avatarUrl ?? "https://i.pravatar.cc/300?img=12",
           followers: user.followers,
           following: user.following,
           bio: user.bio ?? "",
