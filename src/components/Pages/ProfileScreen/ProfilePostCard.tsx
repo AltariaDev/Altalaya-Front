@@ -1,3 +1,4 @@
+import { Mirador } from "@/types/mirador";
 import { useRouter } from "expo-router";
 import React from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -8,7 +9,7 @@ const AnimatedTouchableOpacity =
   Animated.createAnimatedComponent(TouchableOpacity);
 
 interface ProfilePostCardProps {
-  post: Post;
+  post: Mirador;
   viewMode: "grid" | "list";
   animatedStyle: any;
 }
@@ -24,7 +25,7 @@ export default function ProfilePostCard({
     router.push({
       pathname: "/MiradorDetail",
       params: {
-        mirador: JSON.stringify(post),
+        miradorId: post.id,
       },
     });
   };
