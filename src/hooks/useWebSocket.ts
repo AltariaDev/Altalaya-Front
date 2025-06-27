@@ -1,6 +1,6 @@
-import { websocketService } from '../services/websocket';
-import { useAuthStore } from '../store/authStore';
-import { useEffect, useRef } from 'react';
+import { websocketService } from "@/services/websocket";
+import { useAuthStore } from "@/store/authStore";
+import { useEffect, useRef } from "react";
 
 export const useWebSocket = () => {
   const { isAuthenticated } = useAuthStore();

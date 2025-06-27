@@ -1,4 +1,4 @@
-import { AnimatedButtonProps } from "@/types";
+import { AnimatedButtonProps } from "@/types/components";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
 import Animated, {

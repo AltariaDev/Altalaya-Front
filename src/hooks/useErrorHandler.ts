@@ -1,18 +1,16 @@
+import { useSettingsStore } from "@/store/settingsStore";
 import { useCallback } from "react";
 import { Alert } from "react-native";
-import { useAppStore } from "../store";
 
 export const useErrorHandler = () => {
-  const { setError, clearError } = useAppStore();
+  const { setError, clearError } = useSettingsStore();
 
   const handleError = useCallback(
     (error: Error | string, showAlert = true) => {
       const errorMessage = typeof error === "string" ? error : error.message;
 
-      // Set error in global store
       setError(errorMessage);
 
-      // Show alert if requested
       if (showAlert) {
         Alert.alert("Error", errorMessage, [
           {
@@ -22,14 +20,8 @@ export const useErrorHandler = () => {
         ]);
       }
 
-      // Log error for debugging
       console.error("Error handled:", error);
 
-      // Here you could send error to crash reporting service
-      // Example: Sentry.captureException(error);
-
-      // You can add more sophisticated error handling here
-      // For example, sending to error reporting service
       if (__DEV__) {
         console.warn("Error details:", {
           message: typeof error === "string" ? error : error.message,

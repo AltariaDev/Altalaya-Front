@@ -1,4 +1,4 @@
-import { Notification } from "../types";
+import { Notification } from "@/types/notification";
 
 export const formatTimeAgo = (dateString: string): string => {
   const now = new Date();

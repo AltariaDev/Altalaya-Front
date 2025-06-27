@@ -4,49 +4,22 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { notificationsService } from "../services/notifications";
 
-interface AppStateLocal {
-  favoriteMiradores: string[];
-
+interface NotificationsState {
   notifications: Notification[];
   unreadCount: number;
   notificationsLoading: boolean;
-
-  language: "es" | "en" | "fr";
-
-  isLoading: boolean;
-  error: string | null;
-
-  toggleFavorite: (miradorKey: string) => void;
   fetchNotifications: () => Promise<void>;
   addNotification: (notification: Notification) => void;
   markNotificationAsRead: (id: string) => Promise<void>;
   markAllNotificationsAsRead: () => Promise<void>;
-  setLanguage: (language: "es" | "en" | "fr") => void;
-  setLoading: (loading: boolean) => void;
-  setError: (error: string | null) => void;
-  clearError: () => void;
 }
 
-export const useAppStore = create<AppStateLocal>()(
+export const useNotificationsStore = create<NotificationsState>()(
   persist(
     (set, get) => ({
-      favoriteMiradores: [],
       notifications: [],
       unreadCount: 0,
       notificationsLoading: false,
-      language: "es",
-      isLoading: false,
-      error: null,
-
-      toggleFavorite: (miradorKey) =>
-        set((state) => {
-          const isFavorite = state.favoriteMiradores.includes(miradorKey);
-          return {
-            favoriteMiradores: isFavorite
-              ? state.favoriteMiradores.filter((key) => key !== miradorKey)
-              : [...state.favoriteMiradores, miradorKey],
-          };
-        }),
 
       fetchNotifications: async () => {
         set({ notificationsLoading: true });
@@ -94,41 +67,27 @@ export const useAppStore = create<AppStateLocal>()(
           console.error("Error marking all notifications as read:", error);
         }
       },
-
-      setLanguage: (language) => set({ language }),
-
-      setLoading: (isLoading) => set({ isLoading }),
-
-      setError: (error) => set({ error }),
-
-      clearError: () => set({ error: null }),
     }),
     {
-      name: "altalaya-storage",
+      name: "altalaya-notifications",
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
-        favoriteMiradores: state.favoriteMiradores,
         notifications: state.notifications,
-        language: state.language,
       }),
     }
   )
 );
 
-export const useFavoriteMiradores = () =>
-  useAppStore((state) => state.favoriteMiradores);
 export const useNotifications = () =>
-  useAppStore((state) => state.notifications);
-export const useUnreadCount = () => useAppStore((state) => state.unreadCount);
+  useNotificationsStore((state) => state.notifications);
+export const useUnreadCount = () =>
+  useNotificationsStore((state) => state.unreadCount);
 export const useNotificationsLoading = () =>
-  useAppStore((state) => state.notificationsLoading);
-export const useLanguage = () => useAppStore((state) => state.language);
-export const useIsLoading = () => useAppStore((state) => state.isLoading);
-export const useError = () => useAppStore((state) => state.error);
+  useNotificationsStore((state) => state.notificationsLoading);
 
 // Export actions
 export const {
   fetchNotifications,
   markNotificationAsRead,
   markAllNotificationsAsRead,
-} = useAppStore.getState();
+} = useNotificationsStore.getState();

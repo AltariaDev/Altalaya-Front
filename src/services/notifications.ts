@@ -1,4 +1,4 @@
-import { Notification } from "../types";
+import { Notification } from "@/types";
 import api from "./api";
 
 export const notificationsService = {

@@ -1,4 +1,4 @@
-import { AnimatedViewProps } from "@/types";
+import { AnimatedViewProps } from "@/types/components";
 import React, { useEffect } from "react";
 import Animated, {
   Easing,
@@ -123,11 +123,11 @@ const AnimatedView: React.FC<AnimatedViewProps> = ({
     } else {
       opacity.value = withTiming(0, { duration: 300 });
       scale.value = withSpring(0.9, { damping: 15, stiffness: 150 });
-      translateX.value = withSpring(initialValues.translateX, {
+      translateX.value = withSpring(initialValues.translateX ?? 0, {
         damping: 15,
         stiffness: 150,
       });
-      translateY.value = withSpring(initialValues.translateY, {
+      translateY.value = withSpring(initialValues.translateY ?? 0, {
         damping: 15,
         stiffness: 150,
       });
@@ -144,10 +144,10 @@ const AnimatedView: React.FC<AnimatedViewProps> = ({
 
   useEffect(() => {
     // Reset to initial values when component mounts
-    opacity.value = initialValues.opacity;
-    scale.value = initialValues.scale;
-    translateX.value = initialValues.translateX;
-    translateY.value = initialValues.translateY;
+    opacity.value = initialValues.opacity ?? 0;
+    scale.value = initialValues.scale ?? 0.9;
+    translateX.value = initialValues.translateX ?? 0;
+    translateY.value = initialValues.translateY ?? 0;
   }, [
     initialValues.opacity,
     initialValues.scale,

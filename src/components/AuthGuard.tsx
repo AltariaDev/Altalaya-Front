@@ -1,13 +1,13 @@
-import { Redirect } from "expo-router";
-import React, { useEffect } from "react";
-import { ActivityIndicator, View } from "react-native";
-import { fetchNotifications } from "../store";
 import {
   useAuthStore,
   useIsAuthenticated,
   useIsLoading,
-} from "../store/authStore";
-import { colors } from "../utils/theme";
+} from "@/store/authStore";
+import { fetchNotifications } from "@/store/notificationsStore";
+import { colors } from "@/utils/theme";
+import { Redirect } from "expo-router";
+import React, { useEffect } from "react";
+import { ActivityIndicator, View } from "react-native";
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -23,7 +23,6 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   }, [checkAuth]);
 
   useEffect(() => {
-    // Initialize notifications when user is authenticated
     if (isAuthenticated) {
       fetchNotifications();
     }

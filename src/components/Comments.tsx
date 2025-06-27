@@ -1,4 +1,5 @@
-import { Comment } from "@/types";
+import { Comment } from "@/types/comment";
+import { colors } from "@/utils/theme";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
@@ -10,7 +11,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { colors } from "../utils/theme";
 
 interface CommentsProps {
   comments: Comment[];

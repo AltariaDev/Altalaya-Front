@@ -1,7 +1,7 @@
-import { FormInputProps } from "@/types";
+import { FormInputProps } from "@/types/screens";
+import { colors } from "@/utils/theme";
 import React from "react";
 import { StyleSheet, Text, TextInput, View } from "react-native";
-import { colors } from "../../../utils/theme";
 
 export default function FormInput({
   label,

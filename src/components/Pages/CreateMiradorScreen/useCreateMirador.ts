@@ -1,10 +1,12 @@
+import { Mirador } from "@/types/mirador";
 import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
 import { router, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { Alert } from "react-native";
 import { useErrorHandler } from "../../../hooks/useErrorHandler";
-import { Mirador, miradoresService } from "../../../services/miradores";
+import { miradoresService } from "../../../services/miradores";
+import { uploadService } from "../../../services/upload";
 import { useIsLoading, useMiradoresStore } from "../../../store/miradoresStore";
 
 export function useCreateMirador() {
@@ -12,6 +14,12 @@ export function useCreateMirador() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [images, setImages] = useState<string[]>([]);
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState({
+    current: 0,
+    total: 0,
+  });
   const [selectedLocation, setSelectedLocation] = useState<{
     latitude: number;
     longitude: number;
@@ -34,7 +42,9 @@ export function useCreateMirador() {
     ? JSON.parse(mirador as string)
     : null;
 
-  const canSubmit = Boolean(title && images.length > 0 && selectedLocation);
+  const canSubmit = Boolean(
+    title && images.length > 0 && selectedLocation && !isUploading
+  );
 
   useEffect(() => {
     if (isEditMode && miradorData && !isInitialized) {
@@ -156,28 +166,48 @@ export function useCreateMirador() {
 
     await handleAsyncError(
       async () => {
-        const addressParts = selectedLocation.address?.split(", ") || [];
-        const city = addressParts[1] || "Málaga";
-        const country = addressParts[3] || "España";
+        setIsUploading(true);
 
-        const newMiradorData = {
-          title,
-          description: description || undefined,
-          imageUrl: images[0],
-          images: images,
-          latitude: selectedLocation.latitude,
-          longitude: selectedLocation.longitude,
-          city,
-          country,
-        };
+        try {
+          setUploadProgress({ current: 0, total: images.length });
 
-        if (isEditMode && miradorData) {
-          await miradoresService.updateMirador(miradorData.id, newMiradorData);
-        } else {
-          await createMirador(newMiradorData);
+          const uploadPromises = images.map(async (imageUri, index) => {
+            const uploadResponse = await uploadService.uploadImage(imageUri);
+            setUploadProgress((prev) => ({ ...prev, current: index + 1 }));
+            return uploadResponse.url;
+          });
+
+          const uploadedUrls = await Promise.all(uploadPromises);
+          setUploadedImages(uploadedUrls);
+
+          const addressParts = selectedLocation.address?.split(", ") || [];
+          const city = addressParts[1] || "Málaga";
+          const country = addressParts[3] || "España";
+
+          const newMiradorData = {
+            title,
+            description: description || undefined,
+            imageUrl: uploadedUrls[0],
+            images: uploadedUrls,
+            latitude: selectedLocation.latitude,
+            longitude: selectedLocation.longitude,
+            city,
+            country,
+          };
+
+          if (isEditMode && miradorData) {
+            await miradoresService.updateMirador(
+              miradorData.id,
+              newMiradorData
+            );
+          } else {
+            await createMirador(newMiradorData);
+          }
+
+          router.back();
+        } finally {
+          setIsUploading(false);
         }
-
-        router.back();
       },
       isEditMode
         ? "Error al actualizar el mirador"
@@ -195,8 +225,9 @@ export function useCreateMirador() {
     region,
 
     isEditMode,
-    isLoading,
+    isLoading: isLoading || isUploading,
     canSubmit,
+    uploadProgress,
 
     pickImage,
     removeImage,

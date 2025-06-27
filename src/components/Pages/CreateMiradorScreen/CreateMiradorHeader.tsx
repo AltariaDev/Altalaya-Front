@@ -1,9 +1,9 @@
-import { CreateMiradorHeaderProps } from "@/types";
+import { CreateMiradorHeaderProps } from "@/types/screens";
+import { colors } from "@/utils/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { colors } from "../../../utils/theme";
 
 export default function CreateMiradorHeader({
   isEditMode,

@@ -1,15 +1,12 @@
+import { CreateMiradorData, Mirador, UpdateMiradorData } from "@/types/mirador";
 import {
-  Comment,
-  CreateCommentData,
-  CreateMiradorData,
-  Mirador,
   NearbyParams,
   PaginatedResponse,
   PaginationParams,
   SearchParams,
-  UpdateMiradorData,
-} from "@/types";
+} from "@/types/search";
 import api from "./api";
+import { CreateCommentData } from "@/types/comment";
 
 export const miradoresService = {
   // POST /miradores - Crear un nuevo mirador

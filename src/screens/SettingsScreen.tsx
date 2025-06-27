@@ -1,4 +1,8 @@
-import { SettingItem, SettingSection } from "@/types";
+import Modal from "@/components/Modal";
+import { useAuthStore } from "@/store/authStore";
+import { useSettingsStore } from "@/store/settingsStore";
+import { SettingItem, SettingSection } from "@/types/settings";
+import { colors } from "@/utils/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
@@ -6,13 +10,11 @@ import {
   Alert,
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import { useAppStore } from "../store";
-import { useAuthStore } from "../store/authStore";
-import { colors } from "../utils/theme";
 
 const LANGUAGES = [
   { code: "es", name: "Español" },
@@ -87,7 +89,7 @@ export default function SettingsScreen() {
   const [settings, setSettings] = useState(SETTINGS_SECTIONS);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState("Español");
-  const { setLanguage } = useAppStore();
+  const { setLanguage } = useSettingsStore();
   const { logout } = useAuthStore((state) => state.actions);
 
   const handleLogout = () => {
@@ -259,12 +261,9 @@ export default function SettingsScreen() {
         </View>
       </ScrollView>
 
-      {/* Language Selection Modal */}
       <Modal
         visible={showLanguageModal}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => setShowLanguageModal(false)}
+        onClose={() => setShowLanguageModal(false)}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>

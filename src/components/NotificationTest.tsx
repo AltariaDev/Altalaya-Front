@@ -1,11 +1,11 @@
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { useAppStore } from "../store";
+import { useNotificationsStore } from "../store/notificationsStore";
 import { Notification } from "../types";
 import { colors } from "../utils/theme";
 
 const NotificationTest: React.FC = () => {
-  const { addNotification } = useAppStore();
+  const { addNotification } = useNotificationsStore();
 
   const createTestNotification = (type: Notification["type"]) => {
     const testNotification: Notification = {

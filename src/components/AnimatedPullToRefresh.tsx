@@ -1,3 +1,4 @@
+import { colors } from "@/utils/theme";
 import React, { useCallback, useEffect } from "react";
 import { RefreshControl, ScrollView, StyleSheet } from "react-native";
 import Animated, {
@@ -6,8 +7,10 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
-import { colors } from "../utils/theme";
-iromise<void>;
+
+interface AnimatedPullToRefreshProps {
+  children: React.ReactNode;
+  onRefresh: () => Promise<void>;
   refreshing?: boolean;
   style?: any;
 }

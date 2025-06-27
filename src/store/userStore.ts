@@ -1,5 +1,5 @@
 import { authService } from "@/services/auth";
-import { User } from "@/types";
+import { User } from "@/types/user";
 import { create } from "zustand";
 
 interface UserStoreLocal {

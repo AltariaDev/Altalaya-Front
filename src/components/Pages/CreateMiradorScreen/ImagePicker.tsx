@@ -1,4 +1,5 @@
-import { ImagePickerProps } from "@/types";
+import { ImagePickerProps } from "@/types/screens";
+import { colors } from "@/utils/theme";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
@@ -9,7 +10,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { colors } from "../../../utils/theme";
 
 const MAX_IMAGES = 5;
 

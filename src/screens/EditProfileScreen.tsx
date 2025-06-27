@@ -1,3 +1,4 @@
+import { uploadService } from "@/services/upload";
 import { usersService } from "@/services/users";
 import { useUser } from "@/store/userStore";
 import { Ionicons } from "@expo/vector-icons";
@@ -18,11 +19,12 @@ import { colors } from "../utils/theme";
 export default function EditProfileScreen() {
   const user = useUser();
   const [avatar, setAvatar] = useState(user?.avatarUrl);
+  const [localAvatar, setLocalAvatar] = useState<string | null>(null);
   const [name, setName] = useState(user?.name);
   const [username, setUsername] = useState(user?.username);
   const [bio, setBio] = useState(user?.bio);
   const [email, setEmail] = useState(user?.email);
-  console.log(user);
+  const [isUploading, setIsUploading] = useState(false);
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -33,22 +35,35 @@ export default function EditProfileScreen() {
     });
 
     if (!result.canceled) {
+      setLocalAvatar(result.assets[0].uri);
       setAvatar(result.assets[0].uri);
     }
   };
 
   const handleSave = async () => {
     try {
+      setIsUploading(true);
+
+      let finalAvatarUrl = avatar;
+
+      // If there's a local avatar, upload it to Cloudinary first
+      if (localAvatar) {
+        const uploadResponse = await uploadService.uploadImage(localAvatar);
+        finalAvatarUrl = uploadResponse.url;
+      }
+
       await usersService.updateMyProfile({
         name,
         username,
         email,
         bio,
-        avatarUrl: avatar,
+        avatarUrl: finalAvatarUrl,
       });
       router.back();
     } catch (error) {
       console.error(error);
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -62,8 +77,14 @@ export default function EditProfileScreen() {
           <Ionicons name="arrow-back" size={24} color={colors.text.primary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Editar Perfil</Text>
-        <TouchableOpacity onPress={handleSave} style={styles.saveButton}>
-          <Text style={styles.saveButtonText}>Guardar</Text>
+        <TouchableOpacity
+          onPress={handleSave}
+          style={[styles.saveButton, isUploading && styles.saveButtonDisabled]}
+          disabled={isUploading}
+        >
+          <Text style={styles.saveButtonText}>
+            {isUploading ? "Guardando..." : "Guardar"}
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -165,6 +186,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 20,
+  },
+  saveButtonDisabled: {
+    opacity: 0.5,
   },
   saveButtonText: {
     color: colors.text.primary,

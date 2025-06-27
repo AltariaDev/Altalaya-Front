@@ -1,4 +1,5 @@
-import { AuthResponse, LoginData, RegisterData, User } from "@/types";
+import { AuthResponse, LoginData, RegisterData } from "@/types/auth";
+import { User } from "@/types/user";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import api from "./api";
 

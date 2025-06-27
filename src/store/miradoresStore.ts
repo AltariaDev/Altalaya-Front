@@ -1,11 +1,6 @@
 import { miradoresService } from "@/services/miradores";
-import {
-  CreateMiradorData,
-  Mirador,
-  NearbyParams,
-  SearchParams,
-  UpdateMiradorData,
-} from "@/types";
+import { CreateMiradorData, Mirador, UpdateMiradorData } from "@/types/mirador";
+import { NearbyParams, SearchParams } from "@/types/search";
 import { create } from "zustand";
 
 interface MiradoresStateLocal {

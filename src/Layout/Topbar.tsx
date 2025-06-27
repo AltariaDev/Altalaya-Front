@@ -1,10 +1,10 @@
 import { useUser, useUserStore } from "@/store/userStore";
-import { TopbarProps } from "@/types";
+import { TopbarProps } from "@/types/layout";
+import { colors } from "@/utils/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { router, usePathname } from "expo-router";
 import React, { useCallback, useEffect, useMemo } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { colors } from "../utils/theme";
 
 const Topbar = React.memo(({ title }: TopbarProps) => {
   const pathname = usePathname();

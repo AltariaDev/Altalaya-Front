@@ -2,14 +2,14 @@ import {
   SkeletonGridProps,
   SkeletonListProps,
   SkeletonLoaderProps,
-} from "@/types";
+} from "@/types/components";
+import { colors } from "@/utils/theme";
 import React, { useEffect } from "react";
 import { StyleSheet, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
-import { colors } from "../utils/theme";
 
 const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({
   width,

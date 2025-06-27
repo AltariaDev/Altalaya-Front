@@ -1,9 +1,9 @@
 import { useMiradores } from "@/store/miradoresStore";
-import { Mirador } from "@/types";
+import { Mirador } from "@/types/mirador";
+import { PERFORMANCE_CONFIG } from "@/utils/performance";
+import { colors } from "@/utils/theme";
 import React, { useMemo } from "react";
 import MapView, { Marker, PROVIDER_GOOGLE, Region } from "react-native-maps";
-import { PERFORMANCE_CONFIG } from "../../../utils/performance";
-import { colors } from "../../../utils/theme";
 
 interface MapViewComponentProps {
   region: Region;

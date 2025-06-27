@@ -1,4 +1,15 @@
+import {
+  fetchNotifications,
+  markAllNotificationsAsRead,
+  markNotificationAsRead,
+  useNotifications,
+  useNotificationsLoading,
+  useUnreadCount,
+} from "@/store/notificationsStore";
+import { Notification } from "@/types/notification";
+import { colors } from "@/utils/theme";
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -10,15 +21,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import {
-  fetchNotifications,
-  markAllNotificationsAsRead,
-  markNotificationAsRead,
-  useNotifications,
-  useNotificationsLoading,
-  useUnreadCount,
-} from "../store";
-import { colors } from "../utils/theme";
 
 export default function NotificationsScreen() {
   const { t } = useTranslation();
@@ -30,8 +32,19 @@ export default function NotificationsScreen() {
     fetchNotifications();
   }, []);
 
-  const handleNotificationPress = async (id: string) => {
-    await markNotificationAsRead(id);
+  const handleNotificationPress = async (notification: Notification) => {
+    await markNotificationAsRead(notification.id);
+    if (notification.type === "like" || notification.type === "comment") {
+      router.push({
+        pathname: "/MiradorDetail",
+        params: { miradorId: notification.mirador?.id },
+      });
+    } else {
+      router.push({
+        pathname: "/UserDetail",
+        params: { userId: notification.fromUser.id },
+      });
+    }
   };
 
   const handleRefresh = async () => {
@@ -61,45 +74,41 @@ export default function NotificationsScreen() {
     )}`;
   };
 
-  const getNotificationText = (notification: any) => {
+  const getNotificationText = (notification: Notification) => {
     return t(`notifications.types.${notification.type}`);
   };
 
-  const renderNotification = (notification: any) => (
+  const renderNotification = (notification: Notification) => (
     <TouchableOpacity
       key={notification.id}
       style={[
         styles.notificationItem,
         !notification.read && styles.unreadNotification,
       ]}
-      onPress={() => handleNotificationPress(notification.id)}
+      onPress={() => handleNotificationPress(notification)}
     >
       <View style={styles.notificationContent}>
         <View style={styles.notificationHeader}>
           <Image
             source={{
               uri:
-                notification.from_user.avatarUrl ||
+                notification.fromUser.avatarUrl ||
                 "https://i.pravatar.cc/300?img=1",
             }}
             style={styles.userAvatar}
           />
           <View style={styles.notificationInfo}>
-            <Text style={styles.userName}>{notification.from_user.name}</Text>
+            <Text style={styles.userName}>
+              {notification.fromUser.username}
+            </Text>
             <Text style={styles.notificationText}>
               {getNotificationText(notification)}
             </Text>
             <Text style={styles.timeText}>
-              {formatTimeAgo(notification.created_at)}
+              {formatTimeAgo(notification.createdAt)}
             </Text>
           </View>
         </View>
-        {notification.mirador && (
-          <Image
-            source={{ uri: notification.mirador.imageUrl }}
-            style={styles.postImage}
-          />
-        )}
       </View>
     </TouchableOpacity>
   );

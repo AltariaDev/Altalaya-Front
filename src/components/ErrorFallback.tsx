@@ -1,8 +1,15 @@
+import { colors } from "@/utils/theme";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { colors } from "../utils/theme";
-ishowRetry?: boolean;
+
+interface ErrorFallbackProps {
+  title?: string;
+  message?: string;
+  icon?: string;
+  onRetry?: () => void;
+  onReport?: () => void;
+  showRetry?: boolean;
   showReport?: boolean;
 }
 
@@ -18,7 +25,7 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <Ionicons name={icon} size={64} color={colors.error} />
+        <Ionicons name={icon as keyof typeof Ionicons.glyphMap} size={64} color={colors.error} />
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.message}>{message}</Text>
 

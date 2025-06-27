@@ -11,19 +11,17 @@ export interface Notification {
     avatarUrl?: string;
   };
   type: "like" | "comment" | "follow";
-  from_user: {
+  fromUser: {
     id: string;
     username: string;
-    name: string;
     avatarUrl?: string;
   };
   mirador?: {
     id: string;
     title: string;
-    imageUrl: string;
   };
   read: boolean;
-  created_at: string;
+  createdAt: string;
 }
 
 export interface NotificationUser {

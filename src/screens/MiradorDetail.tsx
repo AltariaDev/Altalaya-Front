@@ -1,8 +1,10 @@
-import { Mirador } from "@/services/miradores";
+import { miradoresService } from "@/services/miradores";
+import { Mirador } from "@/types/mirador";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   Image,
   KeyboardAvoidingView,
@@ -20,8 +22,10 @@ import { useUser } from "../store/userStore";
 import { colors } from "../utils/theme";
 
 export default function MiradorDetail() {
-  const { mirador } = useLocalSearchParams();
-  const miradorData: Mirador = JSON.parse(mirador as string);
+  const { miradorId } = useLocalSearchParams();
+  const [miradorData, setMiradorData] = useState<Mirador | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const currentUser = useUser();
   const [commentText, setCommentText] = useState("");
   const [showComments, setShowComments] = useState(false);
@@ -32,17 +36,43 @@ export default function MiradorDetail() {
     likesCount,
     commentsCount,
     comments,
-    isLoading,
+    isLoading: isLoadingSocial,
     isLoadingComments,
     handleLike,
     handleFavorite,
     handleComment,
     loadComments,
-  } = useSocialFeatures(miradorData.id);
+  } = useSocialFeatures(miradorId as string);
 
-  const isOwner = currentUser?.id === miradorData.user.id;
+  const isOwner = currentUser?.id === miradorData?.user.id;
+
+  useEffect(() => {
+    const fetchMirador = async () => {
+      if (!miradorId) {
+        setError("ID de mirador no proporcionado");
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        setError(null);
+        const data = await miradoresService.getMiradorById(miradorId as string);
+        setMiradorData(data);
+      } catch (err) {
+        console.error("Error fetching mirador:", err);
+        setError("No se pudo cargar el mirador");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMirador();
+  }, [miradorId]);
 
   const handleEdit = () => {
+    if (!miradorData) return;
+
     router.push({
       pathname: "/CreateMirador",
       params: {
@@ -53,7 +83,7 @@ export default function MiradorDetail() {
   };
 
   const handleSendComment = async () => {
-    if (!commentText.trim()) return;
+    if (!commentText.trim() || !miradorData) return;
 
     try {
       await handleComment(commentText.trim());
@@ -64,6 +94,8 @@ export default function MiradorDetail() {
   };
 
   const timeAgo = () => {
+    if (!miradorData) return "";
+
     const date = new Date(miradorData.createdAt);
     const now = new Date();
     const diff = now.getTime() - date.getTime();
@@ -76,6 +108,42 @@ export default function MiradorDetail() {
     if (minutes > 0) return `Hace ${minutes} minuto${minutes > 1 ? "s" : ""}`;
     return "Hace un momento";
   };
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={styles.loadingText}>Cargando mirador...</Text>
+      </View>
+    );
+  }
+
+  if (error || !miradorData) {
+    return (
+      <View style={styles.errorContainer}>
+        <Ionicons name="alert-circle-outline" size={64} color={colors.error} />
+        <Text style={styles.errorText}>
+          {error || "No se pudo cargar el mirador"}
+        </Text>
+        <TouchableOpacity
+          style={styles.retryButton}
+          onPress={() => {
+            setIsLoading(true);
+            setError(null);
+            if (miradorId) {
+              miradoresService
+                .getMiradorById(miradorId as string)
+                .then(setMiradorData)
+                .catch(() => setError("No se pudo cargar el mirador"))
+                .finally(() => setIsLoading(false));
+            }
+          }}
+        >
+          <Text style={styles.retryButtonText}>Reintentar</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -149,7 +217,7 @@ export default function MiradorDetail() {
           <TouchableOpacity
             style={styles.iconButton}
             onPress={handleLike}
-            disabled={isLoading}
+            disabled={isLoadingSocial}
           >
             <Ionicons
               name={isLiked ? "heart" : "heart-outline"}
@@ -176,7 +244,7 @@ export default function MiradorDetail() {
           <TouchableOpacity
             style={styles.iconButton}
             onPress={handleFavorite}
-            disabled={isLoading}
+            disabled={isLoadingSocial}
           >
             <Ionicons
               name={isFavorited ? "bookmark" : "bookmark-outline"}
@@ -231,7 +299,7 @@ export default function MiradorDetail() {
               !commentText.trim() && styles.sendButtonDisabled,
             ]}
             onPress={handleSendComment}
-            disabled={!commentText.trim() || isLoading}
+            disabled={!commentText.trim() || isLoadingSocial}
           >
             <Ionicons
               name="send"
@@ -252,6 +320,42 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background.primary,
     paddingTop: 10,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: colors.background.primary,
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: colors.text.secondary,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: colors.background.primary,
+    paddingHorizontal: 24,
+  },
+  errorText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: colors.text.primary,
+    textAlign: "center",
+    marginBottom: 24,
+  },
+  retryButton: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    color: colors.text.primary,
+    fontSize: 16,
+    fontWeight: "600",
   },
   scrollContent: {
     flexGrow: 1,

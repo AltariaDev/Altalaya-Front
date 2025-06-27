@@ -1,5 +1,10 @@
 import { useUserStore } from "@/store/userStore";
-import { FollowData, UpdateProfileData, User, UserSearchParams } from "@/types";
+import {
+  FollowData,
+  UpdateProfileData,
+  User,
+  UserSearchParams,
+} from "@/types/user";
 import api from "./api";
 
 export const usersService = {

@@ -5,6 +5,7 @@ import FormInput from "../components/Pages/CreateMiradorScreen/FormInput";
 import ImagePicker from "../components/Pages/CreateMiradorScreen/ImagePicker";
 import LocationPicker from "../components/Pages/CreateMiradorScreen/LocationPicker";
 import { useCreateMirador } from "../components/Pages/CreateMiradorScreen/useCreateMirador";
+import UploadProgress from "../components/UploadProgress";
 import { colors } from "../utils/theme";
 
 export default function CreateMiradorScreen() {
@@ -19,6 +20,7 @@ export default function CreateMiradorScreen() {
     isEditMode,
     isLoading,
     canSubmit,
+    uploadProgress,
     pickImage,
     removeImage,
     handleMapPress,
@@ -27,6 +29,15 @@ export default function CreateMiradorScreen() {
 
   return (
     <View style={styles.container}>
+      <UploadProgress
+        current={uploadProgress.current}
+        total={uploadProgress.total}
+        isVisible={
+          uploadProgress.total > 0 &&
+          uploadProgress.current < uploadProgress.total
+        }
+      />
+
       <ScrollView showsVerticalScrollIndicator={false}>
         <CreateMiradorHeader
           isEditMode={isEditMode}

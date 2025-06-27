@@ -14,7 +14,6 @@ export default function ProfileStats({
   const user = useUser();
 
   if (!user) return null;
-  console.log(user);
 
   return (
     <Animated.View style={[styles.stats, statsAnimatedStyle]}>

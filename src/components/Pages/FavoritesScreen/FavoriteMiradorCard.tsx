@@ -1,4 +1,4 @@
-import { FavoriteMiradorCardProps } from "@/types";
+import { FavoriteMiradorCardProps } from "@/types/screens";
 import { colors } from "@/utils/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";

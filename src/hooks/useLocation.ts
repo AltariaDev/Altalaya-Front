@@ -1,7 +1,7 @@
 import { LocationState } from "@/types";
+import { PERFORMANCE_CONFIG } from "@/utils/performance";
 import * as Location from "expo-location";
 import { useCallback, useEffect, useState } from "react";
-import { PERFORMANCE_CONFIG } from "../utils/performance";
 
 interface UseLocationReturnLocal {
   location: LocationState | null;

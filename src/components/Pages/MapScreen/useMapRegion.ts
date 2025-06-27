@@ -1,4 +1,4 @@
-import { Mirador } from "@/types";
+import { Mirador } from "@/types/mirador";
 import { useCallback, useMemo } from "react";
 import { Region } from "react-native-maps";
 

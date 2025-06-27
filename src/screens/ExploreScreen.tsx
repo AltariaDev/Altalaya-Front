@@ -124,13 +124,13 @@ export default function ExploreScreen() {
                   router.push({
                     pathname: "/MiradorDetail",
                     params: {
-                      mirador: JSON.stringify(item),
+                      miradorId: item.mirador.id,
                     },
                   });
                 } else {
                   router.push({
                     pathname: "/UserDetail",
-                    params: { id: item.id, searchQuery },
+                    params: { userId: item.id, searchQuery },
                   });
                 }
               }}

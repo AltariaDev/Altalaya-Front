@@ -1,4 +1,5 @@
-import { Comment, miradoresService } from "@/services/miradores";
+import { miradoresService } from "@/services/miradores";
+import { Comment } from "@/types/comment";
 import { useEffect, useState } from "react";
 import { useErrorHandler } from "./useErrorHandler";
 

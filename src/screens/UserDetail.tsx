@@ -1,3 +1,7 @@
+import { usersService } from "@/services/users";
+import { useUser } from "@/store/userStore";
+import { User } from "@/types/user";
+import { colors } from "@/utils/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -15,14 +19,11 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
-import { User, usersService } from "../services/users";
-import { useUser } from "../store/userStore";
-import { colors } from "../utils/theme";
 
 const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
 
 export default function UserDetail() {
-  const { id, searchQuery } = useLocalSearchParams();
+  const { userId } = useLocalSearchParams();
   const currentUser = useUser();
   const [user, setUser] = useState<User | null>(null);
   const [isFollowing, setIsFollowing] = useState(false);
@@ -41,14 +42,14 @@ export default function UserDetail() {
 
   useEffect(() => {
     loadUserData();
-  }, [id]);
+  }, [userId]);
 
   const loadUserData = async () => {
-    if (!id) return;
+    if (!userId) return;
 
     try {
       setIsLoading(true);
-      const userData = await usersService.getProfileByUserId(id as string);
+      const userData = await usersService.getProfileByUserId(userId as string);
       setUser(userData);
       setFollowersCount(userData.followers.length);
       setFollowingCount(userData.following.length);

@@ -1,5 +1,5 @@
 import { useMiradoresStore } from "@/store/miradoresStore";
-import { Mirador } from "@/types";
+import { Mirador } from "@/types/mirador";
 import { useCallback, useEffect, useRef } from "react";
 import { Alert } from "react-native";
 import { Marker, Region } from "react-native-maps";
