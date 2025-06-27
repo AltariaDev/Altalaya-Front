@@ -1,9 +1,5 @@
+import { UploadResponse } from "@/types";
 import api from "./api";
-
-export interface UploadResponse {
-  url: string;
-  publicId: string;
-}
 
 export const uploadService = {
   async uploadImage(imageUri: string): Promise<UploadResponse> {

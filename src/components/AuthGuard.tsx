@@ -1,6 +1,7 @@
 import { Redirect } from "expo-router";
 import React, { useEffect } from "react";
 import { ActivityIndicator, View } from "react-native";
+import { fetchNotifications } from "../store";
 import {
   useAuthStore,
   useIsAuthenticated,
@@ -20,6 +21,13 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
+
+  useEffect(() => {
+    // Initialize notifications when user is authenticated
+    if (isAuthenticated) {
+      fetchNotifications();
+    }
+  }, [isAuthenticated]);
 
   if (isLoading) {
     return (

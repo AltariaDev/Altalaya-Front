@@ -1,8 +1,9 @@
 import { Mirador } from "@/services/miradores";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 import {
+  Alert,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -13,6 +14,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { Comments } from "../components/Comments";
+import { useSocialFeatures } from "../hooks/useSocialFeatures";
 import { useUser } from "../store/userStore";
 import { colors } from "../utils/theme";
 
@@ -20,6 +23,22 @@ export default function MiradorDetail() {
   const { mirador } = useLocalSearchParams();
   const miradorData: Mirador = JSON.parse(mirador as string);
   const currentUser = useUser();
+  const [commentText, setCommentText] = useState("");
+  const [showComments, setShowComments] = useState(false);
+
+  const {
+    isLiked,
+    isFavorited,
+    likesCount,
+    commentsCount,
+    comments,
+    isLoading,
+    isLoadingComments,
+    handleLike,
+    handleFavorite,
+    handleComment,
+    loadComments,
+  } = useSocialFeatures(miradorData.id);
 
   const isOwner = currentUser?.id === miradorData.user.id;
 
@@ -31,6 +50,17 @@ export default function MiradorDetail() {
         isEditing: "true",
       },
     });
+  };
+
+  const handleSendComment = async () => {
+    if (!commentText.trim()) return;
+
+    try {
+      await handleComment(commentText.trim());
+      setCommentText("");
+    } catch (error) {
+      Alert.alert("Error", "No se pudo enviar el comentario");
+    }
   };
 
   const timeAgo = () => {
@@ -94,34 +124,82 @@ export default function MiradorDetail() {
           style={styles.mainImage}
         />
 
+        <TouchableOpacity
+          style={styles.creatorRow}
+          onPress={() => {
+            router.push({
+              pathname: "/UserDetail",
+              params: { id: miradorData.user.id },
+            });
+          }}
+        >
+          <Image
+            source={{
+              uri:
+                miradorData.user?.avatarUrl ||
+                "https://i.pravatar.cc/300?img=12",
+            }}
+            style={styles.creatorAvatar}
+          />
+          <Text style={styles.creatorName}>{miradorData.user?.username}</Text>
+        </TouchableOpacity>
         <Text style={styles.description}>{miradorData.description}</Text>
 
         <View style={styles.iconRow}>
-          <TouchableOpacity style={styles.iconButton}>
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={handleLike}
+            disabled={isLoading}
+          >
             <Ionicons
-              name="heart-outline"
+              name={isLiked ? "heart" : "heart-outline"}
               size={24}
-              color={colors.text.secondary}
+              color={isLiked ? colors.primary : colors.text.secondary}
             />
-            <Text style={styles.iconText}>0</Text>
+            <Text style={[styles.iconText, isLiked && styles.likedText]}>
+              {likesCount}
+            </Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton}>
+
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() => setShowComments(!showComments)}
+          >
             <Ionicons
               name="chatbubble-outline"
               size={24}
               color={colors.text.secondary}
             />
-            <Text style={styles.iconText}>0</Text>
+            <Text style={styles.iconText}>{commentsCount}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton}>
+
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={handleFavorite}
+            disabled={isLoading}
+          >
             <Ionicons
-              name="bookmark-outline"
+              name={isFavorited ? "bookmark" : "bookmark-outline"}
               size={24}
-              color={colors.text.secondary}
+              color={isFavorited ? colors.primary : colors.text.secondary}
             />
-            <Text style={styles.iconText}>0</Text>
+            <Text
+              style={[styles.iconText, isFavorited && styles.favoritedText]}
+            >
+              {isFavorited ? "Guardado" : "Guardar"}
+            </Text>
           </TouchableOpacity>
         </View>
+
+        {showComments && (
+          <View style={styles.commentsSection}>
+            <Comments
+              comments={comments}
+              isLoading={isLoadingComments}
+              onRefresh={loadComments}
+            />
+          </View>
+        )}
       </ScrollView>
 
       <KeyboardAvoidingView
@@ -130,7 +208,11 @@ export default function MiradorDetail() {
         style={styles.commentRow}
       >
         <Image
-          source={{ uri: "https://i.pravatar.cc/150?img=1" }}
+          source={{
+            uri:
+              currentUser?.avatarUrl ||
+              `https://i.pravatar.cc/150?u=${currentUser?.id}`,
+          }}
           style={styles.avatar}
         />
         <View style={styles.inputBox}>
@@ -138,9 +220,26 @@ export default function MiradorDetail() {
             placeholder="Añade un comentario..."
             placeholderTextColor={colors.text.secondary}
             style={styles.input}
+            value={commentText}
+            onChangeText={setCommentText}
+            multiline
+            maxLength={500}
           />
-          <TouchableOpacity style={styles.sendButton}>
-            <Ionicons name="send" size={20} color={colors.text.primary} />
+          <TouchableOpacity
+            style={[
+              styles.sendButton,
+              !commentText.trim() && styles.sendButtonDisabled,
+            ]}
+            onPress={handleSendComment}
+            disabled={!commentText.trim() || isLoading}
+          >
+            <Ionicons
+              name="send"
+              size={20}
+              color={
+                commentText.trim() ? colors.text.primary : colors.text.secondary
+              }
+            />
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -237,6 +336,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "500",
   },
+  likedText: {
+    color: colors.primary,
+  },
+  favoritedText: {
+    color: colors.primary,
+  },
+  commentsSection: {
+    marginBottom: 32,
+  },
   commentRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -270,6 +378,7 @@ const styles = StyleSheet.create({
     color: colors.text.primary,
     fontSize: 16,
     paddingVertical: 12,
+    maxHeight: 100,
   },
   sendButton: {
     width: 36,
@@ -278,6 +387,9 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     justifyContent: "center",
     alignItems: "center",
+  },
+  sendButtonDisabled: {
+    opacity: 0.5,
   },
   editButton: {
     width: 48,
@@ -291,5 +403,25 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+  },
+  creatorRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 24,
+    marginBottom: 24,
+  },
+  creatorAvatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    marginRight: 16,
+  },
+  creatorName: {
+    color: colors.text.primary,
+  },
+  creatorLabel: {
+    color: colors.text.secondary,
+    fontSize: 16,
+    fontWeight: "500",
   },
 });

@@ -2,14 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { colors } from "../utils/theme";
-
-interface ErrorFallbackProps {
-  title?: string;
-  message?: string;
-  icon?: keyof typeof Ionicons.glyphMap;
-  onRetry?: () => void;
-  onReport?: () => void;
-  showRetry?: boolean;
+ishowRetry?: boolean;
   showReport?: boolean;
 }
 

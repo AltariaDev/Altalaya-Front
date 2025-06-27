@@ -1,4 +1,5 @@
 import { useMiradores, useMiradoresStore } from "@/store/miradoresStore";
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect } from "react";
 import {
@@ -42,7 +43,20 @@ export default function HomeScreen() {
               <Text style={styles.title} numberOfLines={2}>
                 {item.title}
               </Text>
-              <Text style={styles.views}>0 views</Text>
+              <View style={styles.statsRow}>
+                <View style={styles.stat}>
+                  <Ionicons name="heart" size={14} color={colors.primary} />
+                  <Text style={styles.statText}>{item.likesCount || 0}</Text>
+                </View>
+                <View style={styles.stat}>
+                  <Ionicons
+                    name="chatbubble-outline"
+                    size={14}
+                    color={colors.text.secondary}
+                  />
+                  <Text style={styles.statText}>{item.commentsCount || 0}</Text>
+                </View>
+              </View>
             </View>
           </TouchableOpacity>
         )}
@@ -86,9 +100,18 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     letterSpacing: -0.5,
   },
-  views: {
+  statsRow: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  stat: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  statText: {
     color: colors.text.secondary,
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "500",
   },
   centerContent: {

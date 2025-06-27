@@ -1,5 +1,5 @@
+import { AnimatedViewProps } from "@/types";
 import React, { useEffect } from "react";
-import { ViewProps } from "react-native";
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -8,15 +8,6 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
-
-interface AnimatedViewProps extends ViewProps {
-  delay?: number;
-  duration?: number;
-  direction?: "up" | "down" | "left" | "right" | "fade" | "scale";
-  distance?: number;
-  children: React.ReactNode;
-  isVisible: boolean;
-}
 
 const AnimatedView: React.FC<AnimatedViewProps> = ({
   delay = 0,

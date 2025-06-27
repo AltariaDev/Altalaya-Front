@@ -1,7 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
-import React from "react";
+import React, { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Image,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -9,18 +11,58 @@ import {
   View,
 } from "react-native";
 import {
+  fetchNotifications,
+  markAllNotificationsAsRead,
   markNotificationAsRead,
   useNotifications,
+  useNotificationsLoading,
   useUnreadCount,
 } from "../store";
 import { colors } from "../utils/theme";
 
 export default function NotificationsScreen() {
+  const { t } = useTranslation();
   const notifications = useNotifications();
   const unreadCount = useUnreadCount();
+  const loading = useNotificationsLoading();
 
-  const handleNotificationPress = (id: string) => {
-    markNotificationAsRead(id);
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
+
+  const handleNotificationPress = async (id: string) => {
+    await markNotificationAsRead(id);
+  };
+
+  const handleRefresh = async () => {
+    await fetchNotifications();
+  };
+
+  const handleMarkAllRead = async () => {
+    await markAllNotificationsAsRead();
+  };
+
+  const formatTimeAgo = (dateString: string) => {
+    const now = new Date();
+    const date = new Date(dateString);
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+    if (diffInSeconds < 60) return t("notifications.timeAgo.now");
+    if (diffInSeconds < 3600)
+      return `${Math.floor(diffInSeconds / 60)}${t(
+        "notifications.timeAgo.minutes"
+      )}`;
+    if (diffInSeconds < 86400)
+      return `${Math.floor(diffInSeconds / 3600)}${t(
+        "notifications.timeAgo.hours"
+      )}`;
+    return `${Math.floor(diffInSeconds / 86400)}${t(
+      "notifications.timeAgo.days"
+    )}`;
+  };
+
+  const getNotificationText = (notification: any) => {
+    return t(`notifications.types.${notification.type}`);
   };
 
   const renderNotification = (notification: any) => (
@@ -35,27 +77,26 @@ export default function NotificationsScreen() {
       <View style={styles.notificationContent}>
         <View style={styles.notificationHeader}>
           <Image
-            source={{ uri: notification.user.avatar }}
+            source={{
+              uri:
+                notification.from_user.avatarUrl ||
+                "https://i.pravatar.cc/300?img=1",
+            }}
             style={styles.userAvatar}
           />
           <View style={styles.notificationInfo}>
-            <Text style={styles.userName}>{notification.user.name}</Text>
+            <Text style={styles.userName}>{notification.from_user.name}</Text>
             <Text style={styles.notificationText}>
-              {notification.type === "like" && "le gustó tu mirador"}
-              {notification.type === "comment" && "comentó en tu mirador"}
-              {notification.type === "follow" && "empezó a seguirte"}
+              {getNotificationText(notification)}
             </Text>
-            {notification.comment && (
-              <Text style={styles.commentText}>
-                &ldquo;{notification.comment}&rdquo;
-              </Text>
-            )}
-            <Text style={styles.timeText}>{notification.time}</Text>
+            <Text style={styles.timeText}>
+              {formatTimeAgo(notification.created_at)}
+            </Text>
           </View>
         </View>
-        {notification.post && (
+        {notification.mirador && (
           <Image
-            source={{ uri: notification.post.image }}
+            source={{ uri: notification.mirador.imageUrl }}
             style={styles.postImage}
           />
         )}
@@ -63,34 +104,69 @@ export default function NotificationsScreen() {
     </TouchableOpacity>
   );
 
+  if (loading && notifications.length === 0) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>{t("notifications.title")}</Text>
+          {unreadCount > 0 && (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>{unreadCount}</Text>
+            </View>
+          )}
+        </View>
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>{t("notifications.loading")}</Text>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Notificaciones</Text>
-        {unreadCount > 0 && (
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>{unreadCount}</Text>
-          </View>
-        )}
+        <Text style={styles.headerTitle}>{t("notifications.title")}</Text>
+        <View style={styles.headerActions}>
+          {unreadCount > 0 && (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>{unreadCount}</Text>
+            </View>
+          )}
+          {unreadCount > 0 && (
+            <TouchableOpacity
+              onPress={handleMarkAllRead}
+              style={styles.markAllButton}
+            >
+              <Text style={styles.markAllText}>
+                {t("notifications.markAll")}
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.notificationsList}
+        refreshControl={
+          <RefreshControl refreshing={loading} onRefresh={handleRefresh} />
+        }
+      >
         {notifications.length === 0 ? (
           <View style={styles.emptyState}>
             <Ionicons
-              name="notifications-off"
+              name="notifications-outline"
               size={64}
               color={colors.text.secondary}
             />
-            <Text style={styles.emptyStateTitle}>No hay notificaciones</Text>
+            <Text style={styles.emptyStateTitle}>
+              {t("notifications.empty")}
+            </Text>
             <Text style={styles.emptyStateText}>
-              Cuando recibas notificaciones, aparecerán aquí
+              {t("notifications.emptyMessage")}
             </Text>
           </View>
         ) : (
-          <View style={styles.notificationsList}>
-            {notifications.map(renderNotification)}
-          </View>
+          notifications.map(renderNotification)
         )}
       </ScrollView>
     </View>
@@ -165,12 +241,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 4,
   },
-  commentText: {
-    color: colors.text.primary,
-    fontSize: 16,
-    marginBottom: 4,
-    fontStyle: "italic",
-  },
   timeText: {
     color: colors.text.secondary,
     fontSize: 14,
@@ -203,5 +273,31 @@ const styles = StyleSheet.create({
   },
   unreadNotification: {
     backgroundColor: colors.background.secondary,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    color: colors.text.primary,
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  markAllButton: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 16,
+    marginLeft: 12,
+  },
+  markAllText: {
+    color: colors.background.primary,
+    fontSize: 14,
+    fontWeight: "600",
   },
 });

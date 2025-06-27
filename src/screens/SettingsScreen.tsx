@@ -1,54 +1,18 @@
-import { useAuthStore } from "@/store/authStore";
+import { SettingItem, SettingSection } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
   Alert,
-  Modal,
   ScrollView,
   StyleSheet,
-  Switch,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import { useAppStore } from "../store";
+import { useAuthStore } from "../store/authStore";
 import { colors } from "../utils/theme";
-
-type SettingItem =
-  | {
-      icon: string;
-      title: string;
-      route: string;
-      type?: undefined;
-      value?: undefined;
-    }
-  | {
-      icon: string;
-      title: string;
-      type: "switch";
-      value: boolean;
-      route?: undefined;
-    }
-  | {
-      icon: string;
-      title: string;
-      value: string;
-      type?: undefined;
-      route?: undefined;
-    }
-  | {
-      icon: string;
-      title: string;
-      type: "danger";
-      route?: undefined;
-      value?: undefined;
-    };
-
-type SettingSection = {
-  title: string;
-  items: SettingItem[];
-};
 
 const LANGUAGES = [
   { code: "es", name: "Español" },

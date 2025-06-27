@@ -1,19 +1,20 @@
 import { useUser } from "@/store/userStore";
+import { router } from "expo-router";
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Animated from "react-native-reanimated";
 import { colors } from "../../../utils/theme";
 
 interface ProfileStatsProps {
   statsAnimatedStyle: any;
 }
-
 export default function ProfileStats({
   statsAnimatedStyle,
 }: ProfileStatsProps) {
   const user = useUser();
 
   if (!user) return null;
+  console.log(user);
 
   return (
     <Animated.View style={[styles.stats, statsAnimatedStyle]}>
@@ -29,6 +30,13 @@ export default function ProfileStats({
         <Text style={styles.statNumber}>{user.following.length}</Text>
         <Text style={styles.statLabel}>Siguiendo</Text>
       </View>
+      <TouchableOpacity
+        onPress={() => router.push("/Favorites")}
+        style={styles.statItem}
+      >
+        <Text style={styles.statNumber}>0</Text>
+        <Text style={styles.statLabel}>Favoritos</Text>
+      </TouchableOpacity>
     </Animated.View>
   );
 }
@@ -37,7 +45,7 @@ const styles = StyleSheet.create({
   stats: {
     flexDirection: "row",
     justifyContent: "space-around",
-    marginBottom: 20,
+    marginVertical: 10,
   },
   statItem: {
     alignItems: "center",

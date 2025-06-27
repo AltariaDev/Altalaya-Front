@@ -1,5 +1,4 @@
 import { Mirador } from "@/services/miradores";
-import { useIsLoading } from "@/store/miradoresStore";
 import { useLocalSearchParams } from "expo-router";
 import React from "react";
 import { StyleSheet, View } from "react-native";
@@ -10,9 +9,8 @@ import { useMapRegion } from "../components/Pages/MapScreen/useMapRegion";
 import { useLocation } from "../hooks/useLocation";
 
 export default function MapScreen() {
-  const { location, isLoading: locationLoading, error } = useLocation();
+  const { location, error, isLoading } = useLocation();
   const { mirador } = useLocalSearchParams();
-  const isLoading = useIsLoading();
 
   const miradorData: Mirador | null = mirador
     ? JSON.parse(mirador as string)
@@ -31,11 +29,9 @@ export default function MapScreen() {
     error,
   });
 
-  const isAnyLoading = locationLoading || isLoading;
-
   return (
     <View style={styles.container}>
-      <LoadingOverlay isLoading={isAnyLoading} />
+      <LoadingOverlay isLoading={isLoading} />
       <MapViewComponent
         region={region}
         miradorData={miradorData}

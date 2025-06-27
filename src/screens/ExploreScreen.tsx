@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import Animated, {
@@ -191,19 +192,42 @@ export default function ExploreScreen() {
                     {item.bio}
                   </Text>
                 )}
-                <Text
-                  style={{
-                    color: colors.text.primary,
-                    fontSize: 16,
-                    marginTop: 4,
-                    fontWeight: "500",
-                    textDecorationLine: "underline",
-                    textDecorationColor: colors.detail,
-                    textDecorationStyle: "solid",
-                  }}
-                >
-                  Ver más
-                </Text>
+                {searchType === "miradores" && (
+                  <View style={{ flexDirection: "row", marginTop: 8, gap: 16 }}>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 4,
+                      }}
+                    >
+                      <Ionicons name="heart" size={16} color={colors.primary} />
+                      <Text
+                        style={{ color: colors.text.secondary, fontSize: 14 }}
+                      >
+                        {item.likesCount || 0}
+                      </Text>
+                    </View>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 4,
+                      }}
+                    >
+                      <Ionicons
+                        name="chatbubble-outline"
+                        size={16}
+                        color={colors.text.secondary}
+                      />
+                      <Text
+                        style={{ color: colors.text.secondary, fontSize: 14 }}
+                      >
+                        {item.commentsCount || 0}
+                      </Text>
+                    </View>
+                  </View>
+                )}
               </View>
             </TouchableOpacity>
           ))}

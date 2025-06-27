@@ -17,10 +17,10 @@ import { debounce, PERFORMANCE_CONFIG } from "../../../utils/performance";
 import { colors } from "../../../utils/theme";
 
 interface SearchBarProps {
-  searchType?: "miradores" | "users";
-  onSearch?: (query: string, type: "miradores" | "users") => void;
-  setSearchType: (type: "miradores" | "users") => void;
+  searchType: "miradores" | "users";
+  onSearch: (query: string, type: "miradores" | "users") => void;
   searchQuery: string;
+  setSearchType: (type: "miradores" | "users") => void;
 }
 
 const AnimatedTouchableOpacity =

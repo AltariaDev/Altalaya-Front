@@ -1,11 +1,12 @@
 import { useMiradoresStore } from "@/store/miradoresStore";
+import { Mirador } from "@/types";
 import { useCallback, useEffect, useRef } from "react";
 import { Alert } from "react-native";
-import { Region } from "react-native-maps";
+import { Marker, Region } from "react-native-maps";
 
 interface UseMapEffectsProps {
   location: { latitude: number; longitude: number } | null;
-  miradorData: any;
+  miradorData: Mirador;
   region: Region;
   hasRegionChangedSignificantly: (
     newRegion: Region,
@@ -23,7 +24,7 @@ export function useMapEffects({
 }: UseMapEffectsProps) {
   const { getNearbyMiradores } = useMiradoresStore((state) => state.actions);
   const lastRegionRef = useRef<Region | null>(null);
-  const selectedMarkerRef = useRef<any>(null);
+  const selectedMarkerRef = useRef<typeof Marker>(null);
 
   const handleRegionChangeComplete = useCallback(
     (newRegion: Region) => {

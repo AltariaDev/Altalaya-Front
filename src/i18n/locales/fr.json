@@ -15,6 +15,7 @@
   "navigation": {
     "home": "Accueil",
     "map": "Carte",
+    "favorites": "Favoris",
     "create": "Créer",
     "notifications": "Notifications",
     "profile": "Profil",

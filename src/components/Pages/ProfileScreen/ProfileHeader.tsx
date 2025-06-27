@@ -8,7 +8,6 @@ interface ProfileHeaderProps {
   headerAnimatedStyle: any;
   avatarAnimatedStyle: any;
 }
-
 export default function ProfileHeader({
   headerAnimatedStyle,
   avatarAnimatedStyle,

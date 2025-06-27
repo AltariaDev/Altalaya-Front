@@ -24,7 +24,11 @@
           "apiKey": "AIzaSyCkmzN3PYG0VNCVo9NKyHJBV5tGRJGBIXo"
         }
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -51,6 +55,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "8915a8b8-5eb9-4c2b-a045-ca2165aa8ce8"
+      }
     }
   }
 }

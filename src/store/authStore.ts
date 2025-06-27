@@ -3,7 +3,7 @@ import { authService } from "../services/auth";
 import { useMiradoresStore } from "./miradoresStore";
 import { useUserStore } from "./userStore";
 
-interface AuthState {
+interface AuthStateLocal {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
@@ -21,10 +21,11 @@ interface AuthState {
     clearError: () => void;
   };
 }
+
 const { setUser } = useUserStore.getState().actions;
 const { clearMiradores } = useMiradoresStore.getState().actions;
 
-export const useAuthStore = create<AuthState>((set, get) => ({
+export const useAuthStore = create<AuthStateLocal>((set, get) => ({
   isAuthenticated: false,
   isLoading: false,
   error: null,

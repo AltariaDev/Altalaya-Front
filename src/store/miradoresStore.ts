@@ -1,14 +1,14 @@
-import { create } from "zustand";
+import { miradoresService } from "@/services/miradores";
 import {
   CreateMiradorData,
   Mirador,
-  miradoresService,
   NearbyParams,
   SearchParams,
   UpdateMiradorData,
-} from "../services/miradores";
+} from "@/types";
+import { create } from "zustand";
 
-interface MiradoresState {
+interface MiradoresStateLocal {
   miradores: Mirador[];
   currentMirador: Mirador | null;
   isLoading: boolean;
@@ -37,7 +37,7 @@ interface MiradoresState {
   };
 }
 
-export const useMiradoresStore = create<MiradoresState>((set, get) => ({
+export const useMiradoresStore = create<MiradoresStateLocal>((set, get) => ({
   miradores: [],
   currentMirador: null,
   isLoading: false,

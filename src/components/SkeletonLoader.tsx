@@ -1,18 +1,15 @@
+import {
+  SkeletonGridProps,
+  SkeletonListProps,
+  SkeletonLoaderProps,
+} from "@/types";
 import React, { useEffect } from "react";
-import { StyleSheet, View, ViewStyle } from "react-native";
+import { StyleSheet, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
 import { colors } from "../utils/theme";
-
-interface SkeletonLoaderProps {
-  width?: number | string;
-  height?: number;
-  borderRadius?: number;
-  style?: ViewStyle;
-  variant?: "text" | "avatar" | "card" | "button";
-}
 
 const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({
   width,
@@ -81,14 +78,6 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({
 };
 
 // Composant pour les listes de skeleton
-interface SkeletonListProps {
-  count: number;
-  itemHeight?: number;
-  itemWidth?: number | string;
-  spacing?: number;
-  variant?: "text" | "avatar" | "card" | "button";
-}
-
 export const SkeletonList: React.FC<SkeletonListProps> = ({
   count,
   itemHeight,
@@ -112,14 +101,6 @@ export const SkeletonList: React.FC<SkeletonListProps> = ({
 };
 
 // Composant pour les grilles de skeleton
-interface SkeletonGridProps {
-  rows: number;
-  columns: number;
-  itemHeight?: number;
-  spacing?: number;
-  variant?: "text" | "avatar" | "card" | "button";
-}
-
 export const SkeletonGrid: React.FC<SkeletonGridProps> = ({
   rows,
   columns,

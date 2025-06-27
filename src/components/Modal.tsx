@@ -13,11 +13,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { colors } from "../utils/theme";
-
-interface ModalProps {
-  visible: boolean;
-  onClose: () => void;
-  children: React.ReactNode;
+i: React.ReactNode;
   title?: string;
 }
 

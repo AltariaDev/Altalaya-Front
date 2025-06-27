@@ -8,7 +8,7 @@ const AnimatedTouchableOpacity =
   Animated.createAnimatedComponent(TouchableOpacity);
 
 interface ProfilePostCardProps {
-  post: any;
+  post: Post;
   viewMode: "grid" | "list";
   animatedStyle: any;
 }

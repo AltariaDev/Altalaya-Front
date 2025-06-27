@@ -1,24 +1,15 @@
+import { Notification } from "@/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { notificationsService } from "../services/notifications";
 
-export interface Notification {
-  id: string;
-  type: "like" | "comment" | "follow";
-  post?: {
-    title: string;
-    image: string;
-  };
-  comment?: string;
-  time: string;
-  read: boolean;
-}
-
-interface AppState {
+interface AppStateLocal {
   favoriteMiradores: string[];
 
   notifications: Notification[];
   unreadCount: number;
+  notificationsLoading: boolean;
 
   language: "es" | "en" | "fr";
 
@@ -26,21 +17,23 @@ interface AppState {
   error: string | null;
 
   toggleFavorite: (miradorKey: string) => void;
+  fetchNotifications: () => Promise<void>;
   addNotification: (notification: Notification) => void;
-  markNotificationAsRead: (id: string) => void;
-  markAllNotificationsAsRead: () => void;
+  markNotificationAsRead: (id: string) => Promise<void>;
+  markAllNotificationsAsRead: () => Promise<void>;
   setLanguage: (language: "es" | "en" | "fr") => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   clearError: () => void;
 }
 
-export const useAppStore = create<AppState>()(
+export const useAppStore = create<AppStateLocal>()(
   persist(
     (set, get) => ({
       favoriteMiradores: [],
       notifications: [],
       unreadCount: 0,
+      notificationsLoading: false,
       language: "es",
       isLoading: false,
       error: null,
@@ -55,28 +48,52 @@ export const useAppStore = create<AppState>()(
           };
         }),
 
+      fetchNotifications: async () => {
+        set({ notificationsLoading: true });
+        try {
+          const notifications = await notificationsService.getNotifications();
+          const unreadCount = notifications.filter((n) => !n.read).length;
+          set({ notifications, unreadCount, notificationsLoading: false });
+        } catch (error) {
+          console.error("Error fetching notifications:", error);
+          set({ notificationsLoading: false });
+        }
+      },
+
       addNotification: (notification) =>
         set((state) => ({
           notifications: [notification, ...state.notifications],
           unreadCount: state.unreadCount + 1,
         })),
 
-      markNotificationAsRead: (id) =>
-        set((state) => ({
-          notifications: state.notifications.map((notif) =>
-            notif.id === id ? { ...notif, read: true } : notif
-          ),
-          unreadCount: Math.max(0, state.unreadCount - 1),
-        })),
+      markNotificationAsRead: async (id) => {
+        try {
+          await notificationsService.markAsRead(id);
+          set((state) => ({
+            notifications: state.notifications.map((notif) =>
+              notif.id === id ? { ...notif, read: true } : notif
+            ),
+            unreadCount: Math.max(0, state.unreadCount - 1),
+          }));
+        } catch (error) {
+          console.error("Error marking notification as read:", error);
+        }
+      },
 
-      markAllNotificationsAsRead: () =>
-        set((state) => ({
-          notifications: state.notifications.map((notif) => ({
-            ...notif,
-            read: true,
-          })),
-          unreadCount: 0,
-        })),
+      markAllNotificationsAsRead: async () => {
+        try {
+          await notificationsService.markAllAsRead();
+          set((state) => ({
+            notifications: state.notifications.map((notif) => ({
+              ...notif,
+              read: true,
+            })),
+            unreadCount: 0,
+          }));
+        } catch (error) {
+          console.error("Error marking all notifications as read:", error);
+        }
+      },
 
       setLanguage: (language) => set({ language }),
 
@@ -103,6 +120,15 @@ export const useFavoriteMiradores = () =>
 export const useNotifications = () =>
   useAppStore((state) => state.notifications);
 export const useUnreadCount = () => useAppStore((state) => state.unreadCount);
+export const useNotificationsLoading = () =>
+  useAppStore((state) => state.notificationsLoading);
 export const useLanguage = () => useAppStore((state) => state.language);
 export const useIsLoading = () => useAppStore((state) => state.isLoading);
 export const useError = () => useAppStore((state) => state.error);
+
+// Export actions
+export const {
+  fetchNotifications,
+  markNotificationAsRead,
+  markAllNotificationsAsRead,
+} = useAppStore.getState();

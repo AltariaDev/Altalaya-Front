@@ -1,23 +1,12 @@
+import { AnimatedButtonProps } from "@/types";
 import React from "react";
-import {
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  TouchableOpacityProps,
-} from "react-native";
+import { StyleSheet, Text, TouchableOpacity } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
 import { colors } from "../utils/theme";
-
-interface AnimatedButtonProps extends TouchableOpacityProps {
-  title: string;
-  variant?: "primary" | "secondary" | "outline";
-  size?: "small" | "medium" | "large";
-  children?: React.ReactNode;
-}
 
 const AnimatedTouchableOpacity =
   Animated.createAnimatedComponent(TouchableOpacity);

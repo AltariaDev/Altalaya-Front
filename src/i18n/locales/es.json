@@ -15,6 +15,7 @@
   "navigation": {
     "home": "Inicio",
     "map": "Mapa",
+    "favorites": "Favoritos",
     "create": "Crear",
     "notifications": "Notificaciones",
     "profile": "Perfil",
@@ -37,6 +38,20 @@
   "notifications": {
     "title": "Notificaciones",
     "empty": "No hay notificaciones",
-    "emptyMessage": "Cuando recibas notificaciones, aparecerán aquí"
+    "emptyMessage": "Cuando recibas notificaciones, aparecerán aquí",
+    "loading": "Cargando notificaciones...",
+    "markAllRead": "Marcar todas como leídas",
+    "markAll": "Marcar todas",
+    "types": {
+      "like": "le gustó tu mirador",
+      "comment": "comentó en tu mirador",
+      "follow": "empezó a seguirte"
+    },
+    "timeAgo": {
+      "now": "Ahora",
+      "minutes": "m",
+      "hours": "h",
+      "days": "d"
+    }
   }
 }

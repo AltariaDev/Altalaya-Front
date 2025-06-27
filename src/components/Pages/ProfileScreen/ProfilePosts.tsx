@@ -37,7 +37,7 @@ export default function ProfilePosts({
 
       <View style={[styles.postsGrid, viewMode === "list" && styles.postsList]}>
         {userPosts.map((post, index) => (
-          <ProfilePostCard
+          <ProfilePostCard  
             key={post.id}
             post={post}
             viewMode={viewMode}

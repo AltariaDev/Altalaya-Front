@@ -1,8 +1,8 @@
 import { authService } from "@/services/auth";
-import { User } from "@/services/users";
+import { User } from "@/types";
 import { create } from "zustand";
 
-interface UserStore {
+interface UserStoreLocal {
   user: User | null;
   actions: {
     setUser: (user: User | null) => void;
@@ -11,7 +11,7 @@ interface UserStore {
   };
 }
 
-export const useUserStore = create<UserStore>((set) => ({
+export const useUserStore = create<UserStoreLocal>((set) => ({
   user: null,
 
   actions: {

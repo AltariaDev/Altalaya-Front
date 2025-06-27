@@ -1,40 +1,6 @@
 import { useUserStore } from "@/store/userStore";
+import { FollowData, UpdateProfileData, User, UserSearchParams } from "@/types";
 import api from "./api";
-
-export interface User {
-  id: string;
-  username: string;
-  name: string;
-  email: string;
-  bio?: string;
-  avatarUrl?: string;
-  createdAt: string;
-  updatedAt: string;
-  posts: number;
-  followers: string[];
-  following: string[];
-}
-
-export interface UpdateProfileData {
-  username?: string;
-  name?: string;
-  email?: string;
-  bio?: string;
-  avatarUrl?: string;
-}
-
-export interface FollowData {
-  id: string;
-  username: string;
-  avatarUrl?: string;
-  bio?: string;
-}
-
-export interface SearchParams {
-  query: string;
-  page?: number;
-  limit?: number;
-}
 
 export const usersService = {
   async getProfileByUserId(userId: string): Promise<User> {
@@ -68,14 +34,14 @@ export const usersService = {
     return response.data;
   },
 
-  async isFollowing(userId: string): Promise<boolean> {
-    try {
-      const response = await api.get(`/users/following/${userId}/check`);
-      return response.data.following;
-    } catch {
-      return false;
-    }
-  },
+  // async isFollowing(userId: string): Promise<boolean> {
+  //   try {
+  //     const response = await api.get(`/users/following/${userId}/check`);
+  //     return response.data.following;
+  //   } catch {
+  //     return false;
+  //   }
+  // },
 
   async getFollowers(
     userId: string,
@@ -99,7 +65,7 @@ export const usersService = {
     return response.data;
   },
 
-  async searchUsers(params: SearchParams): Promise<{
+  async searchUsers(params: UserSearchParams): Promise<{
     data: User[];
     meta: { page: number; limit: number; total: number; totalPages: number };
   }> {

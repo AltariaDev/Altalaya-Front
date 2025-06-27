@@ -7,10 +7,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { colors } from "../utils/theme";
-
-interface AnimatedPullToRefreshProps {
-  children: React.ReactNode;
-  onRefresh: () => Promise<void>;
+iromise<void>;
   refreshing?: boolean;
   style?: any;
 }

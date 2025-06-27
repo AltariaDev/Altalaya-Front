@@ -1,66 +1,15 @@
+import {
+  Comment,
+  CreateCommentData,
+  CreateMiradorData,
+  Mirador,
+  NearbyParams,
+  PaginatedResponse,
+  PaginationParams,
+  SearchParams,
+  UpdateMiradorData,
+} from "@/types";
 import api from "./api";
-
-export interface Mirador {
-  id: string;
-  title: string;
-  description?: string;
-  imageUrl: string;
-  latitude: number;
-  longitude: number;
-  city: string;
-  country: string;
-  createdAt: string;
-  user: {
-    id: string;
-    username: string;
-    avatarUrl?: string;
-  };
-}
-
-export interface CreateMiradorData {
-  title: string;
-  description?: string;
-  imageUrl: string;
-  latitude: number;
-  longitude: number;
-  city: string;
-  country: string;
-}
-
-export interface UpdateMiradorData {
-  title?: string;
-  description?: string;
-  imageUrl?: string;
-  latitude?: number;
-  longitude?: number;
-  city?: string;
-  country?: string;
-}
-
-export interface PaginationParams {
-  page?: number;
-  limit?: number;
-}
-
-export interface SearchParams extends PaginationParams {
-  query: string;
-}
-
-export interface NearbyParams extends PaginationParams {
-  lat: number;
-  lng: number;
-  radius?: number;
-}
-
-export interface PaginatedResponse<T> {
-  data: T[];
-  meta: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
-}
 
 export const miradoresService = {
   // POST /miradores - Crear un nuevo mirador
@@ -108,5 +57,40 @@ export const miradoresService = {
   // DELETE /miradores/:id - Eliminar un mirador (solo el creador)
   async deleteMirador(id: string): Promise<void> {
     await api.delete(`/miradores/${id}`);
+  },
+
+  // Social Features - Likes
+  async likeMirador(id: string): Promise<void> {
+    await api.post(`/miradores/${id}/like`);
+  },
+
+  async unlikeMirador(id: string): Promise<void> {
+    await api.delete(`/miradores/${id}/like`);
+  },
+
+  // Social Features - Comments
+  async getComments(id: string): Promise<Comment[]> {
+    const response = await api.get(`/miradores/${id}/comments`);
+    return response.data;
+  },
+
+  async createComment(id: string, data: CreateCommentData): Promise<Comment> {
+    const response = await api.post(`/miradores/${id}/comments`, data);
+    return response.data;
+  },
+
+  // Social Features - Favorites
+  async favoriteMirador(id: string): Promise<void> {
+    await api.post(`/miradores/${id}/favorite`);
+  },
+
+  async unfavoriteMirador(id: string): Promise<void> {
+    await api.delete(`/miradores/${id}/favorite`);
+  },
+
+  // GET /miradores/favorites - Obtener miradores favoritos del usuario
+  async getFavoriteMiradores(): Promise<Mirador[]> {
+    const response = await api.get("/miradores/favorites");
+    return response.data;
   },
 };

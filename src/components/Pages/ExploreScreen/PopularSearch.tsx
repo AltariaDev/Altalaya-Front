@@ -29,7 +29,7 @@ const AnimatedTouchableOpacity =
   Animated.createAnimatedComponent(TouchableOpacity);
 
 interface PopularSearchProps {
-  onSearch?: (query: string, type: "miradores" | "users") => void;
+  onSearch: (query: string, type: "miradores" | "users") => void;
   searchType: "miradores" | "users";
 }
 

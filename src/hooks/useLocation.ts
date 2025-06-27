@@ -1,22 +1,16 @@
+import { LocationState } from "@/types";
 import * as Location from "expo-location";
 import { useCallback, useEffect, useState } from "react";
 import { PERFORMANCE_CONFIG } from "../utils/performance";
 
-interface LocationState {
-  latitude: number;
-  longitude: number;
-  accuracy: number | null;
-  timestamp: number | null;
-}
-
-interface UseLocationReturn {
+interface UseLocationReturnLocal {
   location: LocationState | null;
   isLoading: boolean;
   error: string | null;
   refreshLocation: () => Promise<void>;
 }
 
-export const useLocation = (): UseLocationReturn => {
+export const useLocation = (): UseLocationReturnLocal => {
   const [location, setLocation] = useState<LocationState | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

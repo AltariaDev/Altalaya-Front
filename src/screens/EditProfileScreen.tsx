@@ -17,15 +17,16 @@ import { colors } from "../utils/theme";
 
 export default function EditProfileScreen() {
   const user = useUser();
-  const [avatar, setAvatar] = useState(user?.avatar);
+  const [avatar, setAvatar] = useState(user?.avatarUrl);
   const [name, setName] = useState(user?.name);
   const [username, setUsername] = useState(user?.username);
   const [bio, setBio] = useState(user?.bio);
   const [email, setEmail] = useState(user?.email);
+  console.log(user);
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ["images"],
       allowsEditing: true,
       aspect: [1, 1],
       quality: 1,
@@ -43,7 +44,7 @@ export default function EditProfileScreen() {
         username,
         email,
         bio,
-        avatar,
+        avatarUrl: avatar,
       });
       router.back();
     } catch (error) {

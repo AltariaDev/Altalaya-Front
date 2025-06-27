@@ -15,6 +15,7 @@
   "navigation": {
     "home": "Home",
     "map": "Map",
+    "favorites": "Favorites",
     "create": "Create",
     "notifications": "Notifications",
     "profile": "Profile",
@@ -37,6 +38,20 @@
   "notifications": {
     "title": "Notifications",
     "empty": "No notifications",
-    "emptyMessage": "When you receive notifications, they will appear here"
+    "emptyMessage": "When you receive notifications, they will appear here",
+    "loading": "Loading notifications...",
+    "markAllRead": "Mark all as read",
+    "markAll": "Mark all",
+    "types": {
+      "like": "liked your mirador",
+      "comment": "commented on your mirador",
+      "follow": "started following you"
+    },
+    "timeAgo": {
+      "now": "Now",
+      "minutes": "m",
+      "hours": "h",
+      "days": "d"
+    }
   }
 }

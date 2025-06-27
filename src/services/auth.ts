@@ -1,35 +1,6 @@
+import { AuthResponse, LoginData, RegisterData, User } from "@/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import api from "./api";
-
-export interface LoginData {
-  email: string;
-  password: string;
-}
-
-export interface RegisterData {
-  username: string;
-  email: string;
-  password: string;
-  bio?: string;
-}
-
-export interface User {
-  id: string;
-  username: string;
-  name: string;
-  email: string;
-  bio?: string;
-  avatarUrl?: string;
-  createdAt: string;
-  updatedAt: string;
-  followers: string[];
-  following: string[];
-  posts: number;
-}
-
-export interface AuthResponse {
-  access_token: string;
-}
 
 export const authService = {
   async login(data: LoginData): Promise<AuthResponse> {
