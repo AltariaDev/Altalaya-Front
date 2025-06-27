@@ -1,4 +1,4 @@
-import { Notification } from "@/types";
+import { Notification } from "@/types/notification";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";

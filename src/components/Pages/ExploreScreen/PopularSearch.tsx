@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
@@ -64,33 +64,52 @@ export default function PopularSearch({
   const button5Opacity = useSharedValue(0);
   const button5TranslateY = useSharedValue(50);
 
-  const buttonAnimations = [
-    {
-      scale: button1Scale,
-      opacity: button1Opacity,
-      translateY: button1TranslateY,
-    },
-    {
-      scale: button2Scale,
-      opacity: button2Opacity,
-      translateY: button2TranslateY,
-    },
-    {
-      scale: button3Scale,
-      opacity: button3Opacity,
-      translateY: button3TranslateY,
-    },
-    {
-      scale: button4Scale,
-      opacity: button4Opacity,
-      translateY: button4TranslateY,
-    },
-    {
-      scale: button5Scale,
-      opacity: button5Opacity,
-      translateY: button5TranslateY,
-    },
-  ];
+  const buttonAnimations = useMemo(
+    () => [
+      {
+        scale: button1Scale,
+        opacity: button1Opacity,
+        translateY: button1TranslateY,
+      },
+      {
+        scale: button2Scale,
+        opacity: button2Opacity,
+        translateY: button2TranslateY,
+      },
+      {
+        scale: button3Scale,
+        opacity: button3Opacity,
+        translateY: button3TranslateY,
+      },
+      {
+        scale: button4Scale,
+        opacity: button4Opacity,
+        translateY: button4TranslateY,
+      },
+      {
+        scale: button5Scale,
+        opacity: button5Opacity,
+        translateY: button5TranslateY,
+      },
+    ],
+    [
+      button1Scale,
+      button1Opacity,
+      button1TranslateY,
+      button2Scale,
+      button2Opacity,
+      button2TranslateY,
+      button3Scale,
+      button3Opacity,
+      button3TranslateY,
+      button4Scale,
+      button4Opacity,
+      button4TranslateY,
+      button5Scale,
+      button5Opacity,
+      button5TranslateY,
+    ]
+  );
 
   const currentSearches =
     searchType === "miradores"

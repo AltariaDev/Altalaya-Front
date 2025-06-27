@@ -1,7 +1,8 @@
-import { Mirador } from "@/services/miradores";
+import { Mirador } from "@/types/mirador";
 import { useLocalSearchParams } from "expo-router";
-import React from "react";
+import React, { RefObject } from "react";
 import { StyleSheet, View } from "react-native";
+import { MapMarker } from "react-native-maps";
 import LoadingOverlay from "../components/Pages/MapScreen/LoadingOverlay";
 import MapViewComponent from "../components/Pages/MapScreen/MapViewComponent";
 import { useMapEffects } from "../components/Pages/MapScreen/useMapEffects";
@@ -23,7 +24,7 @@ export default function MapScreen() {
 
   const { selectedMarkerRef, handleRegionChangeComplete } = useMapEffects({
     location,
-    miradorData,
+    miradorData: miradorData as Mirador,
     region,
     hasRegionChangedSignificantly,
     error,
@@ -34,9 +35,14 @@ export default function MapScreen() {
       <LoadingOverlay isLoading={isLoading} />
       <MapViewComponent
         region={region}
-        miradorData={miradorData}
-        selectedMarkerRef={selectedMarkerRef}
+        miradorData={miradorData as Mirador}
+        selectedMarkerRef={selectedMarkerRef as RefObject<typeof MapMarker>}
         onRegionChangeComplete={handleRegionChangeComplete}
+        currentLocation={
+          location
+            ? { latitude: location.latitude, longitude: location.longitude }
+            : null
+        }
       />
     </View>
   );

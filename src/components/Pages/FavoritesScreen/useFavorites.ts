@@ -1,6 +1,7 @@
 import { useErrorHandler } from "@/hooks/useErrorHandler";
-import { Mirador, miradoresService } from "@/services/miradores";
-import { useEffect, useState } from "react";
+import { miradoresService } from "@/services/miradores";
+import { Mirador } from "@/types/mirador";
+import { useCallback, useEffect, useState } from "react";
 
 export function useFavorites() {
   const [favorites, setFavorites] = useState<Mirador[]>([]);
@@ -8,7 +9,7 @@ export function useFavorites() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { handleError } = useErrorHandler();
 
-  const loadFavorites = async () => {
+  const loadFavorites = useCallback(async () => {
     try {
       setIsLoading(true);
       const data = await miradoresService.getFavoriteMiradores();
@@ -18,7 +19,7 @@ export function useFavorites() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [handleError]);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -28,7 +29,7 @@ export function useFavorites() {
 
   useEffect(() => {
     loadFavorites();
-  }, []);
+  }, [loadFavorites]);
 
   const timeAgo = (dateString: string) => {
     const date = new Date(dateString);

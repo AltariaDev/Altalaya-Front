@@ -1,4 +1,4 @@
-import { LocationState } from "@/types";
+import { LocationState } from "@/types/location";
 import { PERFORMANCE_CONFIG } from "@/utils/performance";
 import * as Location from "expo-location";
 import { useCallback, useEffect, useState } from "react";
@@ -29,13 +29,12 @@ export const useLocation = (): UseLocationReturnLocal => {
       const lastKnownLocation = await Location.getLastKnownPositionAsync({
         maxAge: PERFORMANCE_CONFIG.LOCATION_CONFIG.maxAge,
       });
-
       if (lastKnownLocation) {
         setLocation({
           latitude: lastKnownLocation.coords.latitude,
           longitude: lastKnownLocation.coords.longitude,
-          accuracy: lastKnownLocation.coords.accuracy,
-          timestamp: lastKnownLocation.timestamp,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01
         });
         return;
       }
@@ -49,8 +48,8 @@ export const useLocation = (): UseLocationReturnLocal => {
       setLocation({
         latitude: currentLocation.coords.latitude,
         longitude: currentLocation.coords.longitude,
-        accuracy: currentLocation.coords.accuracy,
-        timestamp: currentLocation.timestamp,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01
       });
     } catch (err) {
       console.warn("Location error:", err);

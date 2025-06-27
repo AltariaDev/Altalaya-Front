@@ -1,6 +1,7 @@
 import { Stack, usePathname } from "expo-router";
 import React from "react";
 import { StyleSheet, View } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import AuthGuard from "../src/components/AuthGuard";
 import ErrorBoundary from "../src/components/ErrorBoundary";
 import "../src/i18n";
@@ -38,9 +39,11 @@ const Layout = React.memo(() => {
   );
 
   return (
-    <ErrorBoundary onError={handleError}>
-      {isPublicPage ? content : <AuthGuard>{content}</AuthGuard>}
-    </ErrorBoundary>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ErrorBoundary onError={handleError}>
+        {isPublicPage ? content : <AuthGuard>{content}</AuthGuard>}
+      </ErrorBoundary>
+    </GestureHandlerRootView>
   );
 });
 

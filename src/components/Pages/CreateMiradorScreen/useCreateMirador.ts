@@ -14,7 +14,6 @@ export function useCreateMirador() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [images, setImages] = useState<string[]>([]);
-  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({
     current: 0,
@@ -178,7 +177,6 @@ export function useCreateMirador() {
           });
 
           const uploadedUrls = await Promise.all(uploadPromises);
-          setUploadedImages(uploadedUrls);
 
           const addressParts = selectedLocation.address?.split(", ") || [];
           const city = addressParts[1] || "Málaga";

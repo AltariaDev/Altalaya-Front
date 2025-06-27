@@ -4,7 +4,7 @@ import { User } from "@/types/user";
 import { colors } from "@/utils/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Alert,
   Image,
@@ -40,11 +40,7 @@ export default function UserDetail() {
     });
   }, [containerTranslateY]);
 
-  useEffect(() => {
-    loadUserData();
-  }, [userId]);
-
-  const loadUserData = async () => {
+  const loadUserData = useCallback(async () => {
     if (!userId) return;
 
     try {
@@ -64,7 +60,11 @@ export default function UserDetail() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [userId]);
+
+  useEffect(() => {
+    loadUserData();
+  }, [loadUserData]);
 
   const handleFollow = async () => {
     if (!user || !currentUser) return;

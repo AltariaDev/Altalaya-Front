@@ -1,17 +1,7 @@
 import { UploadResponse } from "@/types/upload";
 import api from "./api";
 
-/**
- * Service for handling image uploads to Cloudinary via the backend API
- */
 export const uploadService = {
-  /**
-   * Uploads an image to Cloudinary
-   * @param imageUri - Local URI of the image to upload
-   * @param retries - Number of retry attempts for failed uploads (default: 3)
-   * @returns Promise<UploadResponse> - Object containing the uploaded image URL and public ID
-   * @throws Error if upload fails after all retry attempts
-   */
   async uploadImage(imageUri: string, retries = 3): Promise<UploadResponse> {
     const formData = new FormData();
 

@@ -34,7 +34,7 @@ export default function HomeScreen() {
             onPress={() =>
               router.push({
                 pathname: "/MiradorDetail",
-                params: { mirador: JSON.stringify(item) },
+                params: { miradorId: item.id },
               })
             }
           >

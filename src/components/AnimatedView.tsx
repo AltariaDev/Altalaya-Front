@@ -73,7 +73,7 @@ const AnimatedView: React.FC<AnimatedViewProps> = ({
     };
 
     startAnimation();
-  }, [delay, duration, direction, distance]);
+  }, [delay, duration, direction, opacity, translateX, translateY, scale]);
 
   const getInitialValues = () => {
     switch (direction) {
@@ -143,7 +143,6 @@ const AnimatedView: React.FC<AnimatedViewProps> = ({
   ]);
 
   useEffect(() => {
-    // Reset to initial values when component mounts
     opacity.value = initialValues.opacity ?? 0;
     scale.value = initialValues.scale ?? 0.9;
     translateX.value = initialValues.translateX ?? 0;

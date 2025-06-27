@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import {
   useAnimatedStyle,
   useSharedValue,
@@ -28,14 +28,30 @@ export function useProfileAnimations() {
   const post6Scale = useSharedValue(0.9);
   const post6Opacity = useSharedValue(0);
 
-  const postAnimations = [
-    { scale: post1Scale, opacity: post1Opacity },
-    { scale: post2Scale, opacity: post2Opacity },
-    { scale: post3Scale, opacity: post3Opacity },
-    { scale: post4Scale, opacity: post4Opacity },
-    { scale: post5Scale, opacity: post5Opacity },
-    { scale: post6Scale, opacity: post6Opacity },
-  ];
+  const postAnimations = useMemo(
+    () => [
+      { scale: post1Scale, opacity: post1Opacity },
+      { scale: post2Scale, opacity: post2Opacity },
+      { scale: post3Scale, opacity: post3Opacity },
+      { scale: post4Scale, opacity: post4Opacity },
+      { scale: post5Scale, opacity: post5Opacity },
+      { scale: post6Scale, opacity: post6Opacity },
+    ],
+    [
+      post1Scale,
+      post1Opacity,
+      post2Scale,
+      post2Opacity,
+      post3Scale,
+      post3Opacity,
+      post4Scale,
+      post4Opacity,
+      post5Scale,
+      post5Opacity,
+      post6Scale,
+      post6Opacity,
+    ]
+  );
 
   useEffect(() => {
     headerOpacity.value = withTiming(1, { duration: 800 });

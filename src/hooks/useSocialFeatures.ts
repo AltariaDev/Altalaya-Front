@@ -1,6 +1,6 @@
 import { miradoresService } from "@/services/miradores";
 import { Comment } from "@/types/comment";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useErrorHandler } from "./useErrorHandler";
 
 export const useSocialFeatures = (miradorId: string) => {
@@ -13,12 +13,7 @@ export const useSocialFeatures = (miradorId: string) => {
   const [isLoadingComments, setIsLoadingComments] = useState(false);
   const { handleError } = useErrorHandler();
 
-  useEffect(() => {
-    loadMiradorData();
-    loadComments();
-  }, [miradorId]);
-
-  const loadMiradorData = async () => {
+  const loadMiradorData = useCallback(async () => {
     try {
       const mirador = await miradoresService.getMiradorById(miradorId);
       setIsLiked(mirador.isLiked || false);
@@ -26,21 +21,27 @@ export const useSocialFeatures = (miradorId: string) => {
       setLikesCount(mirador.likesCount || 0);
       setCommentsCount(mirador.commentsCount || 0);
     } catch (error) {
-      handleError(error);
+      handleError(error as string | Error);
     }
-  };
+  }, [miradorId, handleError]);
 
-  const loadComments = async () => {
+  const loadComments = useCallback(async () => {
     try {
       setIsLoadingComments(true);
       const commentsData = await miradoresService.getComments(miradorId);
       setComments(commentsData);
+      setCommentsCount(commentsData.length || 0);
     } catch (error) {
-      handleError(error);
+      handleError(error as string | Error);
     } finally {
       setIsLoadingComments(false);
     }
-  };
+  }, [miradorId, handleError]);
+
+  useEffect(() => {
+    loadMiradorData();
+    loadComments();
+  }, [loadMiradorData, loadComments]);
 
   const handleLike = async () => {
     try {
@@ -55,7 +56,7 @@ export const useSocialFeatures = (miradorId: string) => {
         setIsLiked(true);
       }
     } catch (error) {
-      handleError(error);
+      handleError(error as string | Error);
     } finally {
       setIsLoading(false);
     }
@@ -72,7 +73,7 @@ export const useSocialFeatures = (miradorId: string) => {
         setIsFavorited(true);
       }
     } catch (error) {
-      handleError(error);
+      handleError(error as string | Error);
     } finally {
       setIsLoading(false);
     }
@@ -88,7 +89,7 @@ export const useSocialFeatures = (miradorId: string) => {
       setCommentsCount((prev) => prev + 1);
       return newComment;
     } catch (error) {
-      handleError(error);
+      handleError(error as string | Error);
       throw error;
     } finally {
       setIsLoading(false);

@@ -41,7 +41,7 @@ export const useErrorHandler = () => {
       try {
         return await asyncFn();
       } catch (error) {
-        handleError(errorMessage);
+        handleError(errorMessage + error);
         return null;
       }
     },
