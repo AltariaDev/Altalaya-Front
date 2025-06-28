@@ -17,10 +17,6 @@ export default function CreateMiradorHeader({
         <Ionicons name="arrow-back" size={24} color={colors.text.primary} />
       </TouchableOpacity>
 
-      <Text style={styles.headerTitle}>
-        {isEditMode ? "Editar Mirador" : "Crear Mirador"}
-      </Text>
-
       <TouchableOpacity
         onPress={onSubmit}
         style={[

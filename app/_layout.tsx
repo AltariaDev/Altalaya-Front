@@ -24,9 +24,32 @@ const Layout = React.memo(() => {
     console.error("App Error:", error, errorInfo);
   };
 
+  const title =
+    pathname === "/"
+      ? "Dashboard"
+      : pathname === "/MapMiradores"
+      ? "Mapa"
+      : pathname === "/Profile"
+      ? "Perfil"
+      : pathname === "/Explore"
+      ? "Explorar"
+      : pathname === "/Settings"
+      ? "Configuración"
+      : pathname === "/CreateMirador"
+      ? "Crear mirador"
+      : pathname === "/EditMirador"
+      ? "Editar mirador"
+      : pathname === "/ViewMirador"
+      ? "Ver mirador"
+      : pathname === "/Settings"
+      ? "Configuración"
+      : pathname === "/Notifications"
+      ? "Notificaciones"
+      : "";
+
   const content = (
     <View style={styles.container}>
-      {!isAuthPage && <Navbar title={pathname.split("/")[1]} />}
+      {!isAuthPage && <Navbar title={title} />}
       <Stack
         screenOptions={{
           headerShown: false,

@@ -116,32 +116,32 @@ export default function NotificationsScreen() {
   if (loading && notifications.length === 0) {
     return (
       <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>{t("notifications.title")}</Text>
-          {unreadCount > 0 && (
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>{unreadCount}</Text>
+        {unreadCount > 0 && (
+          <>
+            <View style={styles.header}>
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{unreadCount}</Text>
+              </View>
             </View>
-          )}
-        </View>
-        <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>{t("notifications.loading")}</Text>
-        </View>
+            <View style={styles.loadingContainer}>
+              <Text style={styles.loadingText}>
+                {t("notifications.loading")}
+              </Text>
+            </View>
+          </>
+        )}
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>{t("notifications.title")}</Text>
-        <View style={styles.headerActions}>
-          {unreadCount > 0 && (
+      {unreadCount > 0 && (
+        <View style={styles.header}>
+          <View style={styles.headerActions}>
             <View style={styles.badge}>
               <Text style={styles.badgeText}>{unreadCount}</Text>
             </View>
-          )}
-          {unreadCount > 0 && (
             <TouchableOpacity
               onPress={handleMarkAllRead}
               style={styles.markAllButton}
@@ -150,10 +150,9 @@ export default function NotificationsScreen() {
                 {t("notifications.markAll")}
               </Text>
             </TouchableOpacity>
-          )}
+          </View>
         </View>
-      </View>
-
+      )}
       <ScrollView
         style={styles.notificationsList}
         refreshControl={
@@ -279,6 +278,7 @@ const styles = StyleSheet.create({
   },
   notificationsList: {
     flex: 1,
+    paddingVertical: 20,
   },
   unreadNotification: {
     backgroundColor: colors.background.secondary,
