@@ -2,12 +2,10 @@ export const ENV = {
   // API Configuration
   API_BASE_URL: __DEV__
     ? "http://192.168.1.143:3000"
-    : "https://your-production-api.com",
+    : "https://altalaya.com/api",
 
   // WebSocket Configuration
-  WS_BASE_URL: __DEV__
-    ? "ws://192.168.1.143:3000"
-    : "wss://your-production-api.com",
+  WS_BASE_URL: __DEV__ ? "ws://192.168.1.143:3000" : "wss://altalaya.com/api",
 
   // Cloudinary Configuration (if needed on frontend)
   CLOUDINARY_CLOUD_NAME: process.env.EXPO_PUBLIC_CLOUDINARY_CLOUD_NAME || "",
