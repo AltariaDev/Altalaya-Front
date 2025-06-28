@@ -114,7 +114,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   imagePlaceholder: {
-    width: "100%",
     aspectRatio: 16 / 9,
     backgroundColor: colors.background.secondary,
     justifyContent: "center",

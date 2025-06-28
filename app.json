@@ -12,7 +12,8 @@
       "supportsTablet": true,
       "config": {
         "googleMapsApiKey": "AIzaSyCkmzN3PYG0VNCVo9NKyHJBV5tGRJGBIXo"
-      }
+      },
+      "bundleIdentifier": "com.albocoq.altalayapp"
     },
     "android": {
       "adaptiveIcon": {
@@ -26,8 +27,6 @@
       },
       "edgeToEdgeEnabled": true,
       "permissions": [
-        "android.permission.ACCESS_COARSE_LOCATION",
-        "android.permission.ACCESS_FINE_LOCATION",
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION"
       ],

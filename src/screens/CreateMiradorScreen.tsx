@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import React from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import CreateMiradorHeader from "../components/Pages/CreateMiradorScreen/CreateMiradorHeader";
@@ -44,12 +45,15 @@ export default function CreateMiradorScreen() {
           isLoading={isLoading}
           canSubmit={canSubmit}
           onSubmit={handleSubmit}
+          onBack={() => router.back()}
+          onSave={handleSubmit}
         />
 
         <ImagePicker
           images={images}
           onPickImage={pickImage}
           onRemoveImage={removeImage}
+          onImageSelect={() => {}}
         />
 
         <View style={styles.form}>
