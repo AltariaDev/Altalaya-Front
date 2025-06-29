@@ -10,25 +10,16 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useMiradorDetail } from "./useMiradorDetail";
 
 interface CommentInputProps {
-  commentText: string;
-  setCommentText: (text: string) => void;
-  onSendComment: () => void;
   isLoadingSocial: boolean;
-  currentUser: {
-    id: string;
-    avatarUrl?: string;
-  } | null;
 }
 
-export default function CommentInput({
-  commentText,
-  setCommentText,
-  onSendComment,
-  isLoadingSocial,
-  currentUser,
-}: CommentInputProps) {
+export default function CommentInput({ isLoadingSocial }: CommentInputProps) {
+  const { currentUser, commentText, setCommentText, handleSendComment } =
+    useMiradorDetail();
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "padding"}
@@ -58,7 +49,7 @@ export default function CommentInput({
             styles.sendButton,
             !commentText.trim() && styles.sendButtonDisabled,
           ]}
-          onPress={onSendComment}
+          onPress={handleSendComment}
           disabled={!commentText.trim() || isLoadingSocial}
         >
           <Ionicons

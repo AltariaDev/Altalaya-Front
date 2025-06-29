@@ -3,18 +3,17 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useMiradorDetail } from "./useMiradorDetail";
 
 interface LocationInfoProps {
   city: string;
   country: string;
-  timeAgo: string;
   miradorData: any;
 }
 
 export default function LocationInfo({
   city,
   country,
-  timeAgo,
   miradorData,
 }: LocationInfoProps) {
   const handleLocationPress = () => {
@@ -24,6 +23,7 @@ export default function LocationInfo({
     });
   };
 
+  const { timeAgo } = useMiradorDetail();
   return (
     <TouchableOpacity style={styles.locationRow} onPress={handleLocationPress}>
       <View style={styles.locationIconBox}>
@@ -37,7 +37,7 @@ export default function LocationInfo({
         <Text style={styles.locationCity}>{city}</Text>
         <Text style={styles.locationPlace}>{country}</Text>
       </View>
-      <Text style={styles.timeAgo}>{timeAgo}</Text>
+      <Text style={styles.timeAgo}>{timeAgo()}</Text>
     </TouchableOpacity>
   );
 }

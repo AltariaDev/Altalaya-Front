@@ -1,6 +1,10 @@
 import { uploadService } from "@/services/upload";
 import { usersService } from "@/services/users";
 import { useUser } from "@/store/userStore";
+import {
+  compressImageForUpload,
+  validateAndCompressImage,
+} from "@/utils/imageCompression";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
@@ -31,12 +35,21 @@ export default function EditProfileScreen() {
       mediaTypes: ["images"],
       allowsEditing: true,
       aspect: [1, 1],
-      quality: 1,
+      quality: 0.8,
     });
 
     if (!result.canceled) {
-      setLocalAvatar(result.assets[0].uri);
-      setAvatar(result.assets[0].uri);
+      try {
+        const processedUri = await validateAndCompressImage(
+          result.assets[0].uri
+        );
+        setLocalAvatar(processedUri);
+        setAvatar(processedUri);
+      } catch (error) {
+        console.warn("Failed to process image, using original:", error);
+        setLocalAvatar(result.assets[0].uri);
+        setAvatar(result.assets[0].uri);
+      }
     }
   };
 
@@ -46,10 +59,18 @@ export default function EditProfileScreen() {
 
       let finalAvatarUrl = avatar;
 
-      // If there's a local avatar, upload it to Cloudinary first
+      // If there's a local avatar, compress and upload it to Cloudinary first
       if (localAvatar) {
-        const uploadResponse = await uploadService.uploadImage(localAvatar);
-        finalAvatarUrl = uploadResponse.url;
+        try {
+          const compressedUri = await compressImageForUpload(localAvatar);
+          const uploadResponse = await uploadService.uploadImage(compressedUri);
+          finalAvatarUrl = uploadResponse.url;
+        } catch (error) {
+          console.error("Failed to compress/upload avatar:", error);
+          // Try with original if compression fails
+          const uploadResponse = await uploadService.uploadImage(localAvatar);
+          finalAvatarUrl = uploadResponse.url;
+        }
       }
 
       await usersService.updateMyProfile({

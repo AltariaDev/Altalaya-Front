@@ -1,3 +1,4 @@
+import { useUser } from "@/store/userStore";
 import { colors } from "@/utils/theme";
 import { router } from "expo-router";
 import React from "react";
@@ -12,9 +13,11 @@ interface CreatorInfoProps {
 }
 
 export default function CreatorInfo({ user }: CreatorInfoProps) {
+  const loggedUser = useUser();
+
   const handleCreatorPress = () => {
     router.push({
-      pathname: "/UserDetail",
+      pathname: loggedUser?.id === user.id ? "/Profile" : "/UserDetail",
       params: { id: user.id },
     });
   };

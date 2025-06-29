@@ -11,6 +11,8 @@ export default function FormInput({
   multiline = false,
   numberOfLines = 1,
 }: FormInputProps) {
+
+  
   return (
     <View style={styles.inputContainer}>
       <Text style={styles.label}>{label}</Text>

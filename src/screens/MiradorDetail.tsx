@@ -15,26 +15,12 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 export default function MiradorDetail() {
   const {
     miradorData,
-    currentUser,
-    isOwner,
     isLoading,
     isLoadingSocial,
     error,
-    commentText,
-    setCommentText,
-    isLiked,
-    isFavorited,
-    likesCount,
-    commentsCount,
     comments,
-    handleEdit,
-    handleSendComment,
-    handleLike,
-    handleFavorite,
-    loadComments,
     handleRetry,
-    timeAgo,
-    handleDelete,
+    loadComments,
   } = useMiradorDetail();
 
   if (isLoading) {
@@ -51,17 +37,11 @@ export default function MiradorDetail() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        <MiradorDetailHeader
-          title={miradorData.title}
-          isOwner={isOwner}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
+        <MiradorDetailHeader title={miradorData.title} />
 
         <LocationInfo
           city={miradorData.city}
           country={miradorData.country}
-          timeAgo={timeAgo()}
           miradorData={miradorData}
         />
 
@@ -74,15 +54,7 @@ export default function MiradorDetail() {
 
         <Text style={styles.description}>{miradorData.description}</Text>
 
-        <SocialActions
-          isLiked={isLiked}
-          isFavorited={isFavorited}
-          likesCount={likesCount}
-          commentsCount={commentsCount}
-          isLoadingSocial={isLoadingSocial}
-          onLike={handleLike}
-          onFavorite={handleFavorite}
-        />
+        <SocialActions isLoadingSocial={isLoadingSocial} />
 
         {comments.length > 0 && (
           <View style={styles.commentsSection}>
@@ -95,13 +67,7 @@ export default function MiradorDetail() {
         )}
       </ScrollView>
 
-      <CommentInput
-        commentText={commentText}
-        setCommentText={setCommentText}
-        onSendComment={handleSendComment}
-        isLoadingSocial={isLoadingSocial}
-        currentUser={currentUser}
-      />
+      <CommentInput isLoadingSocial={isLoadingSocial} />
     </View>
   );
 }

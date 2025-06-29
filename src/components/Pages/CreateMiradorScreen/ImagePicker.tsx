@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import ImageSizeInfo from "../../ImageSizeInfo";
 
 const MAX_IMAGES = 5;
 
@@ -30,6 +31,7 @@ export default function ImagePicker({
         {images.map((image, index) => (
           <View key={index} style={styles.imageWrapper}>
             <Image source={{ uri: image }} style={styles.image} />
+            <ImageSizeInfo imageUri={image} showDetails={true} />
             <TouchableOpacity
               style={styles.removeButton}
               onPress={() => onRemoveImage(index)}
@@ -65,9 +67,14 @@ export default function ImagePicker({
       )}
 
       {images.length > 0 && (
-        <Text style={styles.imageCount}>
-          {images.length}/{MAX_IMAGES} imágenes
-        </Text>
+        <View style={styles.footer}>
+          <Text style={styles.imageCount}>
+            {images.length}/{MAX_IMAGES} imágenes
+          </Text>
+          <Text style={styles.sizeInfo}>
+            Las imágenes se comprimirán automáticamente si son muy grandes
+          </Text>
+        </View>
       )}
     </View>
   );
@@ -83,6 +90,9 @@ const styles = StyleSheet.create({
   },
   imageWrapper: {
     position: "relative",
+    backgroundColor: colors.background.secondary,
+    borderRadius: 8,
+    overflow: "hidden",
   },
   image: {
     width: 120,
@@ -126,10 +136,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginTop: 12,
   },
+  footer: {
+    alignItems: "center",
+    marginTop: 12,
+  },
   imageCount: {
     color: colors.text.secondary,
     fontSize: 14,
+    marginBottom: 4,
+  },
+  sizeInfo: {
+    color: colors.text.secondary,
+    fontSize: 11,
     textAlign: "center",
-    marginTop: 8,
+    fontStyle: "italic",
   },
 });

@@ -2,8 +2,10 @@ import { useMiradores } from "@/store/miradoresStore";
 import { Mirador } from "@/types/mirador";
 import { PERFORMANCE_CONFIG } from "@/utils/performance";
 import { colors } from "@/utils/theme";
+import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useMemo, useState } from "react";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE, Region } from "react-native-maps";
 import MiradorModal from "./MiradorModal";
 
@@ -15,6 +17,8 @@ interface MapViewComponentProps {
   currentLocation?: { latitude: number; longitude: number } | null;
 }
 
+type MapType = "standard" | "satellite" | "hybrid";
+
 export default function MapViewComponent({
   region,
   miradorData,
@@ -25,6 +29,24 @@ export default function MapViewComponent({
   const miradores = useMiradores();
   const [selectedMirador, setSelectedMirador] = useState<Mirador | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [mapType, setMapType] = useState<MapType>("standard");
+
+  const mapTypes: {
+    type: MapType;
+    icon: keyof typeof Ionicons.glyphMap;
+    label: string;
+  }[] = [
+    { type: "standard", icon: "map-outline", label: "Standard" },
+    { type: "satellite", icon: "planet-outline", label: "Satellite" },
+    { type: "hybrid", icon: "layers-outline", label: "Hybrid" },
+  ];
+
+  const currentMapTypeIndex = mapTypes.findIndex((mt) => mt.type === mapType);
+
+  const toggleMapType = () => {
+    const nextIndex = (currentMapTypeIndex + 1) % mapTypes.length;
+    setMapType(mapTypes[nextIndex].type);
+  };
 
   const handleMarkerPress = (mirador: Mirador) => {
     setSelectedMirador(mirador);
@@ -114,6 +136,7 @@ export default function MapViewComponent({
         provider={PROVIDER_GOOGLE}
         style={{ flex: 1 }}
         region={region}
+        mapType={mapType}
         showsUserLocation={PERFORMANCE_CONFIG.MAP_CONFIG.showsUserLocation}
         showsMyLocationButton={
           PERFORMANCE_CONFIG.MAP_CONFIG.showsMyLocationButton
@@ -127,6 +150,20 @@ export default function MapViewComponent({
         {markers}
       </MapView>
 
+      <View style={styles.mapTypeButton}>
+        <TouchableOpacity
+          style={styles.mapTypeToggle}
+          onPress={toggleMapType}
+          activeOpacity={0.7}
+        >
+          <Ionicons
+            name={mapTypes[currentMapTypeIndex].icon}
+            size={18}
+            color={colors.text.primary}
+          />
+        </TouchableOpacity>
+      </View>
+
       <MiradorModal
         visible={modalVisible}
         mirador={selectedMirador}
@@ -139,3 +176,25 @@ export default function MapViewComponent({
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  mapTypeButton: {
+    position: "absolute",
+    top: 60,
+    right: 10,
+    zIndex: 1,
+  },
+  mapTypeToggle: {
+    backgroundColor: colors.background.primary,
+    borderRadius: 12,
+    padding: 12,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+});

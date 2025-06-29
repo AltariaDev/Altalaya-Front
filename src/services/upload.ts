@@ -45,6 +45,13 @@ export const uploadService = {
 
       return uploadResponse;
     } catch (error: any) {
+      // Handle 413 Payload Too Large specifically
+      if (error.response?.status === 413) {
+        throw new Error(
+          `Imagen demasiado grande. Por favor, selecciona una imagen más pequeña o de menor calidad.`
+        );
+      }
+
       if (
         retries > 0 &&
         (error.code === "ECONNABORTED" || error.response?.status >= 500)

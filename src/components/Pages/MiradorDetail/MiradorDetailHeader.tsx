@@ -2,33 +2,30 @@ import { colors } from "@/utils/theme";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useMiradorDetail } from "./useMiradorDetail";
 
 interface MiradorDetailHeaderProps {
   title: string;
-  isOwner: boolean;
-  onEdit: () => void;
-  onDelete: () => void;
 }
 
 export default function MiradorDetailHeader({
   title,
-  isOwner,
-  onEdit,
-  onDelete,
 }: MiradorDetailHeaderProps) {
+  const { isOwner, handleEdit, handleDelete } = useMiradorDetail();
+
   return (
     <View style={styles.header}>
       <Text style={styles.headerTitle}>{title}</Text>
       {isOwner && (
         <View style={styles.editButtonsContainer}>
-          <TouchableOpacity style={styles.editButton} onPress={onEdit}>
+          <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
             <Ionicons
               name="create-outline"
               size={24}
               color={colors.text.primary}
             />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.trashButton} onPress={onDelete}>
+          <TouchableOpacity style={styles.trashButton} onPress={handleDelete}>
             <Ionicons
               name="trash-outline"
               size={24}
@@ -50,6 +47,9 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   headerTitle: {
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    maxWidth: "70%",
     color: colors.text.primary,
     fontSize: 28,
     fontWeight: "700",

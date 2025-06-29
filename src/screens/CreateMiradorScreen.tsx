@@ -1,6 +1,7 @@
 import { router } from "expo-router";
 import React from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
+import ImageCompressionInfo from "../components/ImageCompressionInfo";
 import CreateMiradorHeader from "../components/Pages/CreateMiradorScreen/CreateMiradorHeader";
 import FormInput from "../components/Pages/CreateMiradorScreen/FormInput";
 import ImagePicker from "../components/Pages/CreateMiradorScreen/ImagePicker";
@@ -55,6 +56,8 @@ export default function CreateMiradorScreen() {
           onRemoveImage={removeImage}
           onImageSelect={() => {}}
         />
+
+        {images.length === 0 && <ImageCompressionInfo showDetails={true} />}
 
         <View style={styles.form}>
           <FormInput

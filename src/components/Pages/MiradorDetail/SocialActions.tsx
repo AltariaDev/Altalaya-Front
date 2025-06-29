@@ -2,31 +2,27 @@ import { colors } from "@/utils/theme";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useMiradorDetail } from "./useMiradorDetail";
 
 interface SocialActionsProps {
-  isLiked: boolean;
-  isFavorited: boolean;
-  likesCount: number;
-  commentsCount: number;
   isLoadingSocial: boolean;
-  onLike: () => void;
-  onFavorite: () => void;
 }
 
-export default function SocialActions({
-  isLiked,
-  isFavorited,
-  likesCount,
-  commentsCount,
-  isLoadingSocial,
-  onLike,
-  onFavorite,
-}: SocialActionsProps) {
+export default function SocialActions({ isLoadingSocial }: SocialActionsProps) {
+  const {
+    isLiked,
+    isFavorited,
+    likesCount,
+    commentsCount,
+    handleLike,
+    handleFavorite,
+  } = useMiradorDetail();
+
   return (
     <View style={styles.iconRow}>
       <TouchableOpacity
         style={styles.iconButton}
-        onPress={onLike}
+        onPress={handleLike}
         disabled={isLoadingSocial}
       >
         <Ionicons
@@ -50,7 +46,7 @@ export default function SocialActions({
 
       <TouchableOpacity
         style={styles.iconButton}
-        onPress={onFavorite}
+        onPress={handleFavorite}
         disabled={isLoadingSocial}
       >
         <Ionicons
